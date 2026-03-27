@@ -3,7 +3,7 @@ import API from "../services/api";
 import { useNavigate, useParams } from "react-router-dom";
 
 function Login() {
-  const { role } = useParams(); // 🔥 get role from URL
+  const { role } = useParams();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
@@ -57,22 +57,34 @@ function Login() {
           Login
         </button>
 
+        {/* 🔥 NEW REGISTER OPTION */}
         <p style={{ marginTop: "15px" }}>
-          Not {role}?{" "}
+          New user?{" "}
           <span
             style={{ color: "blue", cursor: "pointer" }}
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/register")}
           >
-            Go Back
+            Register here
           </span>
         </p>
+
+        {/* BACK BUTTON */}
+        <p style={{ marginTop: "10px" }}>
+          <span
+            style={{ color: "gray", cursor: "pointer" }}
+            onClick={() => navigate("/")}
+          >
+            ← Go Back
+          </span>
+        </p>
+
       </div>
 
     </div>
   );
 }
 
-/* 🎨 STYLES (PRO LOOK) */
+/* 🎨 STYLES */
 const container = {
   height: "100vh",
   display: "flex",
