@@ -1,22 +1,19 @@
 import React, { useState } from "react";
 import API from "../services/api";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 function Login() {
+  const { role } = useParams(); // 🔥 get role from URL
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
   const handleLogin = async () => {
     try {
-      console.log("Sending login request...");
-
       const res = await API.post("/login", {
         username,
         password,
       });
-
-      console.log("SUCCESS:", res.data);
 
       localStorage.setItem("token", res.data.access_token);
       localStorage.setItem("role", res.data.role);
@@ -28,9 +25,6 @@ function Login() {
       }
 
     } catch (err) {
-      console.log("ERROR:", err);
-      console.log("ERROR RESPONSE:", err?.response?.data);
-
       if (err?.response?.data?.detail) {
         alert(err.response.data.detail);
       } else {
@@ -40,23 +34,79 @@ function Login() {
   };
 
   return (
-    <div style={{ textAlign: "center", marginTop: "100px" }}>
-      <h2>MedChain Login</h2>
+    <div style={container}>
 
-      <input
-        placeholder="Username"
-        onChange={(e) => setUsername(e.target.value)}
-      /><br /><br />
+      <div style={card}>
+        <h2 style={{ marginBottom: "10px" }}>🏥 MedChain</h2>
+        <h3>{role} Login</h3>
 
-      <input
-        type="password"
-        placeholder="Password"
-        onChange={(e) => setPassword(e.target.value)}
-      /><br /><br />
+        <input
+          style={input}
+          placeholder="Username"
+          onChange={(e) => setUsername(e.target.value)}
+        />
 
-      <button onClick={handleLogin}>Login</button>
+        <input
+          style={input}
+          type="password"
+          placeholder="Password"
+          onChange={(e) => setPassword(e.target.value)}
+        />
+
+        <button style={button} onClick={handleLogin}>
+          Login
+        </button>
+
+        <p style={{ marginTop: "15px" }}>
+          Not {role}?{" "}
+          <span
+            style={{ color: "blue", cursor: "pointer" }}
+            onClick={() => navigate("/")}
+          >
+            Go Back
+          </span>
+        </p>
+      </div>
+
     </div>
   );
 }
+
+/* 🎨 STYLES (PRO LOOK) */
+const container = {
+  height: "100vh",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  background: "#f0f2f5",
+};
+
+const card = {
+  background: "#fff",
+  padding: "40px",
+  borderRadius: "10px",
+  boxShadow: "0 0 15px rgba(0,0,0,0.1)",
+  textAlign: "center",
+  width: "300px",
+};
+
+const input = {
+  width: "100%",
+  padding: "10px",
+  margin: "10px 0",
+  borderRadius: "5px",
+  border: "1px solid #ccc",
+};
+
+const button = {
+  width: "100%",
+  padding: "10px",
+  background: "#3498db",
+  color: "white",
+  border: "none",
+  borderRadius: "5px",
+  cursor: "pointer",
+  fontSize: "16px",
+};
 
 export default Login;
