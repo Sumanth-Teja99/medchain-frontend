@@ -10,32 +10,32 @@ function Login() {
 
   const handleLogin = async () => {
     try {
-      const res = await API.post("/login", {
-        username,
-        password,
+      const formData = new URLSearchParams();
+      formData.append("username", username);
+      formData.append("password", password);
+
+      const res = await API.post("/login", formData, {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
       });
 
-      localStorage.setItem("token", res.data.access_token);
-      localStorage.setItem("role", res.data.role);
+      localStorage.setItem("token", res.data.access_token || res.data.token);
+      localStorage.setItem("username", username);
+      localStorage.setItem("role", role?.toLowerCase());
 
-      if (res.data.role === "Patient") {
+      if (role?.toLowerCase() === "patient") {
         navigate("/patient");
       } else {
         navigate("/doctor");
       }
-
     } catch (err) {
-      if (err?.response?.data?.detail) {
-        alert(err.response.data.detail);
-      } else {
-        alert("Server not reachable or backend down");
-      }
+      alert(err.response?.data?.detail || "Login failed");
     }
   };
 
   return (
     <div style={container}>
-
       <div style={card}>
         <h2 style={{ marginBottom: "10px" }}>🏥 MedChain</h2>
         <h3>{role} Login</h3>
@@ -57,7 +57,6 @@ function Login() {
           Login
         </button>
 
-        {/* 🔥 NEW REGISTER OPTION */}
         <p style={{ marginTop: "15px" }}>
           New user?{" "}
           <span
@@ -68,7 +67,6 @@ function Login() {
           </span>
         </p>
 
-        {/* BACK BUTTON */}
         <p style={{ marginTop: "10px" }}>
           <span
             style={{ color: "gray", cursor: "pointer" }}
@@ -77,14 +75,11 @@ function Login() {
             ← Go Back
           </span>
         </p>
-
       </div>
-
     </div>
   );
 }
 
-/* 🎨 STYLES */
 const container = {
   height: "100vh",
   display: "flex",

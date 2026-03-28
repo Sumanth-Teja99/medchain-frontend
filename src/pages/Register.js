@@ -5,8 +5,7 @@ import { useNavigate } from "react-router-dom";
 function Register() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("Patient");
-
+  const [role, setRole] = useState("patient");
   const navigate = useNavigate();
 
   const handleRegister = async () => {
@@ -19,16 +18,14 @@ function Register() {
 
       alert("Registered successfully!");
       navigate("/login/" + role);
-
     } catch (err) {
-      alert(err.response?.data?.detail || "Error");
+      alert(err.response?.data?.detail || "Registration failed");
     }
   };
 
   return (
     <div style={container}>
       <div style={card}>
-
         <h2 style={{ marginBottom: "10px" }}>🏥 MedChain</h2>
         <h3>Create Account</h3>
 
@@ -45,12 +42,9 @@ function Register() {
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        <select
-          style={input}
-          onChange={(e) => setRole(e.target.value)}
-        >
-          <option>Patient</option>
-          <option>Doctor</option>
+        <select style={input} onChange={(e) => setRole(e.target.value)} value={role}>
+          <option value="patient">Patient</option>
+          <option value="doctor">Doctor</option>
         </select>
 
         <button style={button} onClick={handleRegister}>
@@ -66,13 +60,10 @@ function Register() {
             Login here
           </span>
         </p>
-
       </div>
     </div>
   );
 }
-
-/* 🎨 PROFESSIONAL STYLES */
 
 const container = {
   height: "100vh",
