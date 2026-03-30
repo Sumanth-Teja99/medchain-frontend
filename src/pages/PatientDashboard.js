@@ -8,7 +8,7 @@ function PatientDashboard() {
   const [selectedDoctor, setSelectedDoctor] = useState("");
   const [editData, setEditData] = useState({});
 
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("token") || "";
 
   const logout = () => {
     localStorage.clear();
@@ -19,21 +19,23 @@ function PatientDashboard() {
 useEffect(() => {
   const loadData = async () => {
     try {
-      const res1 = await API.get("/get_records", {
+      const recordsRes = await API.get("/get_records", {
         headers: { token }
       });
-      setRecords(res1.data);
+      setRecords(recordsRes.data);
 
-      const res2 = await API.get("/doctors");
-      setDoctors(res2.data);
+      const doctorsRes = await API.get("/doctors");
+      setDoctors(doctorsRes.data);
 
     } catch (err) {
       console.log(err);
     }
   };
 
-  loadData();
-}, []);
+  if (token) {
+    loadData();
+  }
+}, [token]);
 
   // ✅ ADD RECORD
   const addRecord = async () => {
