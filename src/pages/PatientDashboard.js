@@ -15,8 +15,8 @@ function PatientDashboard() {
     window.location.href = "/";
   };
 
-  // ✅ LOAD DATA (SAFE FOR VERCEL)
-  useEffect(() => {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+useEffect(() => {
   const loadData = async () => {
     try {
       const res1 = await API.get("/get_records", {
@@ -26,6 +26,7 @@ function PatientDashboard() {
 
       const res2 = await API.get("/doctors");
       setDoctors(res2.data);
+
     } catch (err) {
       console.log(err);
     }
