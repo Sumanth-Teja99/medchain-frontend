@@ -19,23 +19,23 @@ function PatientDashboard() {
 useEffect(() => {
   const loadData = async () => {
     try {
-      const recordsRes = await API.get("/get_records", {
+      const token = localStorage.getItem("token");
+
+      const res1 = await API.get("/get_records", {
         headers: { token }
       });
-      setRecords(recordsRes.data);
+      setRecords(res1.data);
 
-      const doctorsRes = await API.get("/doctors");
-      setDoctors(doctorsRes.data);
+      const res2 = await API.get("/doctors");
+      setDoctors(res2.data);
 
     } catch (err) {
       console.log(err);
     }
   };
 
-  if (token) {
-    loadData();
-  }
-}, [token]);
+  loadData();
+}, []);
 
   // ✅ ADD RECORD
   const addRecord = async () => {
