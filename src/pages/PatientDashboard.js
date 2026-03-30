@@ -8,38 +8,38 @@ function PatientDashboard() {
   const [selectedDoctor, setSelectedDoctor] = useState("");
   const [editData, setEditData] = useState({});
 
-  const token = localStorage.getItem("token") || "";
-
   const logout = () => {
     localStorage.clear();
     window.location.href = "/";
   };
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-useEffect(() => {
-  const loadData = async () => {
-    try {
-      const token = localStorage.getItem("token");
+  // ✅ FIXED useEffect (NO ESLINT ERROR)
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const token = localStorage.getItem("token");
 
-      const res1 = await API.get("/get_records", {
-        headers: { token }
-      });
-      setRecords(res1.data);
+        const res1 = await API.get("/get_records", {
+          headers: { token }
+        });
+        setRecords(res1.data);
 
-      const res2 = await API.get("/doctors");
-      setDoctors(res2.data);
+        const res2 = await API.get("/doctors");
+        setDoctors(res2.data);
 
-    } catch (err) {
-      console.log(err);
-    }
-  };
+      } catch (err) {
+        console.log(err);
+      }
+    };
 
-  loadData();
-}, []);
+    loadData();
+  }, []);
 
   // ✅ ADD RECORD
   const addRecord = async () => {
     if (!data) return alert("Enter data");
+
+    const token = localStorage.getItem("token");
 
     await API.post(
       "/add_record",
@@ -49,9 +49,8 @@ useEffect(() => {
 
     setData("");
 
-    // reload
     const res = await API.get("/get_records", {
-      headers: { token },
+      headers: { token }
     });
     setRecords(res.data);
   };
@@ -59,6 +58,8 @@ useEffect(() => {
   // ✅ GRANT ACCESS
   const grantAccess = async (recordId) => {
     if (!selectedDoctor) return alert("Select doctor");
+
+    const token = localStorage.getItem("token");
 
     await API.post(
       `/grant_access?record_id=${recordId}&doctor_id=${selectedDoctor}`,
@@ -72,8 +73,9 @@ useEffect(() => {
   // ✅ UPDATE RECORD
   const updateRecord = async (id) => {
     const newData = editData[id];
-
     if (!newData) return alert("Enter new data");
+
+    const token = localStorage.getItem("token");
 
     await API.put(
       `/update_record/${id}?new_data=${newData}`,
@@ -81,9 +83,8 @@ useEffect(() => {
       { headers: { token } }
     );
 
-    // reload
     const res = await API.get("/get_records", {
-      headers: { token },
+      headers: { token }
     });
     setRecords(res.data);
   };
