@@ -26,10 +26,14 @@ function PatientDashboard() {
     setDoctors(res.data);
   };
 
-  useEffect(() => {
-  fetchRecords();
-  fetchDoctors();
-}, [fetchRecords, fetchDoctors]);
+ useEffect(() => {
+  const loadData = async () => {
+    await fetchRecords();
+    await fetchDoctors();
+  };
+
+  loadData();
+}, []);
 
   const addRecord = async () => {
     if (!data) return alert("Enter data");
