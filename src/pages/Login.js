@@ -10,8 +10,9 @@ function Login() {
 
   const handleLogin = async () => {
     try {
-      console.log("Login request...");
+      console.log("Sending login request...");
 
+      // ✅ FIX: send JSON (NOT formData)
       const res = await API.post("/login", {
         username,
         password,
@@ -19,12 +20,10 @@ function Login() {
 
       console.log("SUCCESS:", res.data);
 
-      // Save token
       localStorage.setItem("token", res.data.access_token);
       localStorage.setItem("username", username);
       localStorage.setItem("role", res.data.role);
 
-      // Navigate
       if (res.data.role === "Patient") {
         navigate("/patient");
       } else {
@@ -34,6 +33,7 @@ function Login() {
     } catch (err) {
       console.log("ERROR:", err);
 
+      // ✅ FIX: proper error message
       const message =
         err?.response?.data?.detail ||
         err?.response?.data?.msg ||
@@ -47,7 +47,6 @@ function Login() {
   return (
     <div style={container}>
       <div style={card}>
-
         <h2 style={{ marginBottom: "10px" }}>🏥 MedChain</h2>
         <h3>{role} Login</h3>
 
@@ -68,7 +67,6 @@ function Login() {
           Login
         </button>
 
-        {/* REGISTER */}
         <p style={{ marginTop: "15px" }}>
           New user?{" "}
           <span
@@ -79,7 +77,6 @@ function Login() {
           </span>
         </p>
 
-        {/* BACK */}
         <p style={{ marginTop: "10px" }}>
           <span
             style={{ color: "gray", cursor: "pointer" }}
@@ -88,13 +85,10 @@ function Login() {
             ← Go Back
           </span>
         </p>
-
       </div>
     </div>
   );
 }
-
-/* STYLES */
 
 const container = {
   height: "100vh",
