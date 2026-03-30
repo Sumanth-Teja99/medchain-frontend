@@ -17,22 +17,22 @@ function PatientDashboard() {
 
   // ✅ LOAD DATA (SAFE FOR VERCEL)
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        const recordsRes = await API.get("/get_records", {
-          headers: { token },
-        });
-        setRecords(recordsRes.data);
+  const loadData = async () => {
+    try {
+      const res1 = await API.get("/get_records", {
+        headers: { token }
+      });
+      setRecords(res1.data);
 
-        const doctorsRes = await API.get("/doctors");
-        setDoctors(doctorsRes.data);
-      } catch (err) {
-        console.log(err);
-      }
-    };
+      const res2 = await API.get("/doctors");
+      setDoctors(res2.data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
-    loadData();
-  }, []);
+  loadData();
+}, []);
 
   // ✅ ADD RECORD
   const addRecord = async () => {
