@@ -10,33 +10,44 @@ function Login() {
 
   const handleLogin = async () => {
     try {
-      const formData = new URLSearchParams();
-      formData.append("username", username);
-      formData.append("password", password);
+      console.log("Login request...");
 
-      const res = await API.post("/login", formData, {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
+      const res = await API.post("/login", {
+        username,
+        password,
       });
 
-      localStorage.setItem("token", res.data.access_token || res.data.token);
-      localStorage.setItem("username", username);
-      localStorage.setItem("role", role?.toLowerCase());
+      console.log("SUCCESS:", res.data);
 
-      if (role?.toLowerCase() === "patient") {
+      // Save token
+      localStorage.setItem("token", res.data.access_token);
+      localStorage.setItem("username", username);
+      localStorage.setItem("role", res.data.role);
+
+      // Navigate
+      if (res.data.role === "Patient") {
         navigate("/patient");
       } else {
         navigate("/doctor");
       }
+
     } catch (err) {
-      alert(err.response?.data?.detail || "Login failed");
+      console.log("ERROR:", err);
+
+      const message =
+        err?.response?.data?.detail ||
+        err?.response?.data?.msg ||
+        JSON.stringify(err?.response?.data) ||
+        "Server not reachable (Render sleeping?)";
+
+      alert(message);
     }
   };
 
   return (
     <div style={container}>
       <div style={card}>
+
         <h2 style={{ marginBottom: "10px" }}>🏥 MedChain</h2>
         <h3>{role} Login</h3>
 
@@ -57,6 +68,7 @@ function Login() {
           Login
         </button>
 
+        {/* REGISTER */}
         <p style={{ marginTop: "15px" }}>
           New user?{" "}
           <span
@@ -67,6 +79,7 @@ function Login() {
           </span>
         </p>
 
+        {/* BACK */}
         <p style={{ marginTop: "10px" }}>
           <span
             style={{ color: "gray", cursor: "pointer" }}
@@ -75,10 +88,13 @@ function Login() {
             ← Go Back
           </span>
         </p>
+
       </div>
     </div>
   );
 }
+
+/* STYLES */
 
 const container = {
   height: "100vh",
