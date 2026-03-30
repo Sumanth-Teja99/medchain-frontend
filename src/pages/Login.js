@@ -8,41 +8,34 @@ function Login() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
-    try {
-      console.log("Sending login request...");
+ const handleLogin = async () => {
+  try {
+    const res = await API.post("/login", {
+      username,
+      password,
+    });
 
-      // ✅ FIX: send JSON (NOT formData)
-      const res = await API.post("/login", {
-        username,
-        password,
-      });
+    const role = res.data.role?.toLowerCase();
 
-      console.log("SUCCESS:", res.data);
+    localStorage.setItem("token", res.data.access_token);
+    localStorage.setItem("username", username);
+    localStorage.setItem("role", role);
 
-      localStorage.setItem("token", res.data.access_token);
-      localStorage.setItem("username", username);
-      localStorage.setItem("role", res.data.role);
-
-      if (res.data.role === "Patient") {
-        navigate("/patient");
-      } else {
-        navigate("/doctor");
-      }
-
-    } catch (err) {
-      console.log("ERROR:", err);
-
-      // ✅ FIX: proper error message
-      const message =
-        err?.response?.data?.detail ||
-        err?.response?.data?.msg ||
-        JSON.stringify(err?.response?.data) ||
-        "Server not reachable (Render sleeping?)";
-
-      alert(message);
+    if (role === "patient") {
+      navigate("/patient");
+    } else {
+      navigate("/doctor");
     }
-  };
+
+  } catch (err) {
+    const message =
+      err?.response?.data?.detail ||
+      JSON.stringify(err?.response?.data) ||
+      "Login failed";
+
+    alert(message);
+  }
+};
 
   return (
     <div style={container}>
