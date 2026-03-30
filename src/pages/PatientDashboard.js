@@ -6,6 +6,7 @@ function PatientDashboard() {
   const [records, setRecords] = useState([]);
   const [doctors, setDoctors] = useState([]);
   const [selectedDoctor, setSelectedDoctor] = useState("");
+  const [editData, setEditData] = useState({});
 
   const token = localStorage.getItem("token");
 
@@ -14,49 +15,45 @@ function PatientDashboard() {
     window.location.href = "/";
   };
 
-  const fetchRecords = async () => {
-    const res = await API.get("/get_records", {
-      headers: { token }
-    });
-    setRecords(res.data);
-  };
+  // ✅ LOAD DATA (SAFE FOR VERCEL)
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const recordsRes = await API.get("/get_records", {
+          headers: { token },
+        });
+        setRecords(recordsRes.data);
 
-  const fetchDoctors = async () => {
-    const res = await API.get("/doctors");
-    setDoctors(res.data);
-  };
+        const doctorsRes = await API.get("/doctors");
+        setDoctors(doctorsRes.data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
 
- useEffect(() => {
-  const load = async () => {
-    try {
-      const recordsRes = await API.get("/get_records", {
-        headers: { token }
-      });
-      setRecords(recordsRes.data);
+    loadData();
+  }, []);
 
-      const doctorsRes = await API.get("/doctors");
-      setDoctors(doctorsRes.data);
-
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  load();
-}, []);
-
+  // ✅ ADD RECORD
   const addRecord = async () => {
     if (!data) return alert("Enter data");
 
-    await API.post("/add_record",
+    await API.post(
+      "/add_record",
       { data },
       { headers: { token } }
     );
 
     setData("");
-    fetchRecords();
+
+    // reload
+    const res = await API.get("/get_records", {
+      headers: { token },
+    });
+    setRecords(res.data);
   };
 
+  // ✅ GRANT ACCESS
   const grantAccess = async (recordId) => {
     if (!selectedDoctor) return alert("Select doctor");
 
@@ -69,7 +66,10 @@ function PatientDashboard() {
     alert("Access granted!");
   };
 
-  const updateRecord = async (id, newData) => {
+  // ✅ UPDATE RECORD
+  const updateRecord = async (id) => {
+    const newData = editData[id];
+
     if (!newData) return alert("Enter new data");
 
     await API.put(
@@ -78,14 +78,20 @@ function PatientDashboard() {
       { headers: { token } }
     );
 
-    fetchRecords();
+    // reload
+    const res = await API.get("/get_records", {
+      headers: { token },
+    });
+    setRecords(res.data);
   };
 
   return (
-    <div style={{ padding: "20px" }}>
+    <div style={{ padding: "20px", fontFamily: "Arial" }}>
       <h2>👤 Patient Dashboard</h2>
 
       <button onClick={logout}>Logout</button>
+
+      <hr />
 
       <h3>Add Medical Record</h3>
 
@@ -99,16 +105,20 @@ function PatientDashboard() {
 
       <button onClick={addRecord}>Save Record</button>
 
+      <hr />
+
       <h3>Select Doctor</h3>
 
       <select onChange={(e) => setSelectedDoctor(e.target.value)}>
         <option value="">Select Doctor</option>
-        {doctors.map(d => (
+        {doctors.map((d) => (
           <option key={d.id} value={d.id}>
             {d.username}
           </option>
         ))}
       </select>
+
+      <hr />
 
       <h3>Your Records</h3>
 
@@ -116,17 +126,27 @@ function PatientDashboard() {
         <p>No records yet</p>
       ) : (
         records.map((r) => (
-          <div key={r.id} style={{ border: "1px solid #ccc", margin: "10px", padding: "10px" }}>
-            <p>{r.data}</p>
+          <div
+            key={r.id}
+            style={{
+              border: "1px solid #ccc",
+              margin: "10px",
+              padding: "10px",
+              borderRadius: "8px",
+            }}
+          >
+            <p><b>Data:</b> {r.data}</p>
 
             <input
               placeholder="Edit data"
-              onChange={(e) => (r.newData = e.target.value)}
+              onChange={(e) =>
+                setEditData({ ...editData, [r.id]: e.target.value })
+              }
             />
 
             <br /><br />
 
-            <button onClick={() => updateRecord(r.id, r.newData)}>
+            <button onClick={() => updateRecord(r.id)}>
               Update
             </button>
 
