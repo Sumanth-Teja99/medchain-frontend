@@ -27,12 +27,22 @@ function PatientDashboard() {
   };
 
  useEffect(() => {
-  const loadData = async () => {
-    await fetchRecords();
-    await fetchDoctors();
+  const load = async () => {
+    try {
+      const recordsRes = await API.get("/get_records", {
+        headers: { token }
+      });
+      setRecords(recordsRes.data);
+
+      const doctorsRes = await API.get("/doctors");
+      setDoctors(doctorsRes.data);
+
+    } catch (err) {
+      console.log(err);
+    }
   };
 
-  loadData();
+  load();
 }, []);
 
   const addRecord = async () => {
