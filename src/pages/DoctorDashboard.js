@@ -3,158 +3,139 @@ import API from "../services/api";
 
 function DoctorDashboard() {
   const [records, setRecords] = useState([]);
-  const [editId, setEditId] = useState(null);
-  const [editValue, setEditValue] = useState("");
+  const [editData, setEditData] = useState({});
 
   const logout = () => {
     localStorage.clear();
     window.location.href = "/";
   };
 
-  const fetchRecords = async () => {
+  const loadRecords = async () => {
     try {
       const res = await API.get("/get_records");
       setRecords(res.data || []);
     } catch (err) {
-      console.log("FETCH RECORDS ERROR:", err?.response?.data || err);
+      console.log(err);
     }
   };
 
   useEffect(() => {
-    fetchRecords();
+    if (localStorage.getItem("role") !== "doctor") {
+      alert("Please login as Doctor");
+      localStorage.clear();
+      window.location.href = "/login/Doctor";
+      return;
+    }
+
+    loadRecords();
   }, []);
 
-  const updateRecord = async () => {
-    if (!editValue.trim()) {
+  const updateRecord = async (id) => {
+    const newData = editData[id];
+
+    if (!newData || !newData.trim()) {
       alert("Enter data");
       return;
     }
 
     try {
-      await API.put(
-        `/update_record/${editId}?new_data=${encodeURIComponent(editValue)}`
-      );
-
+      await API.put(`/update_record/${id}?new_data=${encodeURIComponent(newData)}`);
       alert("Updated successfully");
-      setEditId(null);
-      setEditValue("");
-      fetchRecords();
+      loadRecords();
     } catch (err) {
-      console.log("UPDATE ERROR:", err?.response?.data || err);
       alert(err?.response?.data?.detail || "Update failed");
     }
   };
 
   return (
-    <div style={{ fontFamily: "Arial", background: "#f4f6f9", minHeight: "100vh" }}>
+    <div style={{ padding: "20px", background: "#f4f6f9", minHeight: "100vh" }}>
       <div style={header}>
-        <h2>🩺 Doctor Dashboard</h2>
-        <div>
-          <button onClick={fetchRecords} style={greenBtn}>Refresh</button>
-          <button onClick={logout} style={redBtn}>Logout</button>
-        </div>
+        <h2>👨‍⚕️ Doctor Dashboard</h2>
+        <button onClick={logout} style={logoutBtn}>Logout</button>
       </div>
 
-      <div style={{ padding: "20px" }}>
-        <div style={card}>
-          <h3>Total Records</h3>
-          <p>{records.length}</p>
-        </div>
+      <div style={card}>
+        <h3>Accessible Patient Records</h3>
 
-        <div style={card}>
-          <h3>Patient Records</h3>
+        {records.length === 0 ? (
+          <p>No records available</p>
+        ) : (
+          records.map((record) => (
+            <div key={record.id} style={recordBox}>
+              <p><b>ID:</b> {record.id}</p>
+              <p><b>Data:</b> {record.data}</p>
 
-          {records.length === 0 ? (
-            <p>No records available</p>
-          ) : (
-            records.map((r) => (
-              <div key={r.id} style={recordBox}>
-                <p><b>ID:</b> {r.id}</p>
-                <p><b>Data:</b> {r.data}</p>
+              <input
+                placeholder="Edit record"
+                value={editData[record.id] || ""}
+                onChange={(e) =>
+                  setEditData({
+                    ...editData,
+                    [record.id]: e.target.value,
+                  })
+                }
+                style={input}
+              />
 
-                {editId === r.id ? (
-                  <>
-                    <textarea
-                      value={editValue}
-                      onChange={(e) => setEditValue(e.target.value)}
-                      style={textarea}
-                    />
-                    <button onClick={updateRecord} style={greenBtn}>Save</button>
-                  </>
-                ) : (
-                  <button
-                    onClick={() => {
-                      setEditId(r.id);
-                      setEditValue(r.data);
-                    }}
-                    style={blueBtn}
-                  >
-                    Edit
-                  </button>
-                )}
-              </div>
-            ))
-          )}
-        </div>
+              <button
+                onClick={() => updateRecord(record.id)}
+                style={updateBtn}
+              >
+                Update Record
+              </button>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
 }
 
 const header = {
-  background: "#1f2d3d",
+  display: "flex",
+  justifyContent: "space-between",
+  background: "#2c3e50",
   color: "white",
   padding: "15px",
-  display: "flex",
-  justifyContent: "space-between"
 };
 
 const card = {
   background: "white",
   padding: "20px",
   marginTop: "20px",
-  borderRadius: "10px"
+  borderRadius: "10px",
 };
 
 const recordBox = {
   border: "1px solid #ddd",
   padding: "10px",
   marginTop: "10px",
-  borderRadius: "5px"
+  borderRadius: "6px",
 };
 
-const textarea = {
+const input = {
   width: "100%",
-  padding: "10px",
-  marginBottom: "10px"
-};
-
-const blueBtn = {
-  background: "#3498db",
-  color: "white",
   padding: "8px",
-  border: "none",
-  borderRadius: "5px",
-  cursor: "pointer"
+  marginTop: "10px",
 };
 
-const greenBtn = {
+const updateBtn = {
+  marginTop: "10px",
   background: "#27ae60",
   color: "white",
-  padding: "8px",
   border: "none",
+  padding: "8px 12px",
   borderRadius: "5px",
   cursor: "pointer",
-  marginRight: "10px"
 };
 
-const redBtn = {
+const logoutBtn = {
   background: "#e74c3c",
   color: "white",
-  padding: "8px",
   border: "none",
+  padding: "8px 12px",
   borderRadius: "5px",
-  cursor: "pointer"
+  cursor: "pointer",
 };
 
 export default DoctorDashboard;
