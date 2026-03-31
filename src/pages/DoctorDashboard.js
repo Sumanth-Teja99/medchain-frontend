@@ -3,64 +3,66 @@ import API from "../services/api";
 
 function DoctorDashboard() {
   const [records, setRecords] = useState([]);
-  const [editingRecordId, setEditingRecordId] = useState(null);
-  const [title, setTitle] = useState("");
-  const [diagnosis, setDiagnosis] = useState("");
-  const [prescription, setPrescription] = useState("");
-  const [notes, setNotes] = useState("");
-
-  useEffect(() => {
-    fetchRecords();
-  }, []);
-
-  const fetchRecords = async () => {
-    try {
-      const res = await API.get("/get_records");
-      setRecords(res.data || []);
-    } catch (err) {
-      console.log(err);
-    }
-  };
+  const [editingId, setEditingId] = useState(null);
+  const [newData, setNewData] = useState("");
 
   const logout = () => {
     localStorage.clear();
     window.location.href = "/";
   };
 
+  const fetchRecords = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await API.get("/get_records", {
+        headers: { token }
+      });
+
+      setRecords(res.data || []);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchRecords();
+  }, []);
+
   const startEdit = (record) => {
-    setEditingRecordId(record.record_id || record.id);
-    setTitle(record.title || "");
-    setDiagnosis(record.diagnosis || "");
-    setPrescription(record.prescription || "");
-    setNotes(record.notes || "");
+    setEditingId(record.id);
+    setNewData(record.data);
   };
 
   const updateRecord = async () => {
+    if (!newData) return alert("Enter data");
+
     try {
-      await API.put("/update_record", {
-        record_id: editingRecordId,
-        title,
-        diagnosis,
-        prescription,
-        notes,
-      });
+      const token = localStorage.getItem("token");
+
+      await API.put(
+        `/update_record/${editingId}?new_data=${encodeURIComponent(newData)}`,
+        {},
+        { headers: { token } }
+      );
 
       alert("Record updated");
-      setEditingRecordId(null);
-      setTitle("");
-      setDiagnosis("");
-      setPrescription("");
-      setNotes("");
+
+      setEditingId(null);
+      setNewData("");
       fetchRecords();
+
     } catch (err) {
-      alert(err.response?.data?.detail || "Failed to update record");
+      alert("Update failed");
     }
   };
 
   return (
     <div style={{ fontFamily: "Arial", background: "#f4f6f9", minHeight: "100vh" }}>
+
+      {/* HEADER */}
       <div style={header}>
-        <h2>🏥 MedChain Doctor Portal</h2>
+        <h2>🩺 MedChain Doctor Dashboard</h2>
         <div>
           <button style={refreshBtn} onClick={fetchRecords}>Refresh</button>
           <button style={logoutBtn} onClick={logout}>Logout</button>
@@ -68,9 +70,11 @@ function DoctorDashboard() {
       </div>
 
       <div style={{ padding: "20px" }}>
+
+        {/* CARDS */}
         <div style={{ display: "flex", gap: "20px", marginBottom: "20px" }}>
           <div style={cardStyle}>
-            <h3>Total Accessible Records</h3>
+            <h3>Total Records</h3>
             <p>{records.length}</p>
           </div>
 
@@ -80,35 +84,33 @@ function DoctorDashboard() {
           </div>
         </div>
 
+        {/* TABLE */}
         <div style={tableContainer}>
           <h3>📄 Authorized Patient Records</h3>
 
           {records.length === 0 ? (
             <p style={{ marginTop: "15px", color: "gray" }}>
-              No records available. Patient must grant access.
+              No records available (patient must grant access)
             </p>
           ) : (
             <table style={table}>
               <thead>
                 <tr style={{ background: "#ecf0f1" }}>
-                  <th>Patient</th>
-                  <th>Title</th>
-                  <th>Diagnosis</th>
-                  <th>Prescription</th>
-                  <th>Notes</th>
+                  <th>ID</th>
+                  <th>Data</th>
                   <th>Edit</th>
                 </tr>
               </thead>
+
               <tbody>
                 {records.map((r) => (
-                  <tr key={r.record_id || r.id}>
-                    <td>{r.patient_username || r.patient || "-"}</td>
-                    <td>{r.title || "-"}</td>
-                    <td>{r.diagnosis || "-"}</td>
-                    <td>{r.prescription || "-"}</td>
-                    <td>{r.notes || "-"}</td>
+                  <tr key={r.id}>
+                    <td>{r.id}</td>
+                    <td>{r.data}</td>
                     <td>
-                      <button style={smallBtn} onClick={() => startEdit(r)}>Edit</button>
+                      <button style={smallBtn} onClick={() => startEdit(r)}>
+                        Edit
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -117,22 +119,29 @@ function DoctorDashboard() {
           )}
         </div>
 
-        {editingRecordId && (
+        {/* EDIT SECTION */}
+        {editingId && (
           <div style={{ ...tableContainer, marginTop: "20px" }}>
-            <h3>Edit Patient Record</h3>
+            <h3>Edit Record</h3>
 
-            <input style={input} placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
-            <input style={input} placeholder="Diagnosis" value={diagnosis} onChange={(e) => setDiagnosis(e.target.value)} />
-            <input style={input} placeholder="Prescription" value={prescription} onChange={(e) => setPrescription(e.target.value)} />
-            <textarea style={textarea} placeholder="Notes" value={notes} onChange={(e) => setNotes(e.target.value)} />
+            <textarea
+              style={textarea}
+              value={newData}
+              onChange={(e) => setNewData(e.target.value)}
+            />
 
-            <button style={refreshBtn} onClick={updateRecord}>Update Record</button>
+            <button style={refreshBtn} onClick={updateRecord}>
+              Update Record
+            </button>
           </div>
         )}
+
       </div>
     </div>
   );
 }
+
+/* STYLES */
 
 const header = {
   background: "#2c3e50",
@@ -177,8 +186,7 @@ const cardStyle = {
   color: "white",
   padding: "20px",
   borderRadius: "10px",
-  textAlign: "center",
-  boxShadow: "0 4px 10px rgba(0,0,0,0.1)"
+  textAlign: "center"
 };
 
 const tableContainer = {
@@ -194,21 +202,13 @@ const table = {
   borderCollapse: "collapse"
 };
 
-const input = {
-  width: "100%",
-  padding: "12px",
-  marginBottom: "12px",
-  borderRadius: "6px",
-  border: "1px solid #ccc",
-};
-
 const textarea = {
   width: "100%",
   padding: "12px",
   minHeight: "100px",
   marginBottom: "12px",
   borderRadius: "6px",
-  border: "1px solid #ccc",
+  border: "1px solid #ccc"
 };
 
 export default DoctorDashboard;
