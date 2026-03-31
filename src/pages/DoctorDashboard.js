@@ -3,8 +3,8 @@ import API from "../services/api";
 
 function DoctorDashboard() {
   const [records, setRecords] = useState([]);
-  const [editingId, setEditingId] = useState(null);
-  const [newData, setNewData] = useState("");
+  const [editId, setEditId] = useState(null);
+  const [editValue, setEditValue] = useState("");
 
   const logout = () => {
     localStorage.clear();
@@ -29,30 +29,24 @@ function DoctorDashboard() {
     fetchRecords();
   }, []);
 
-  const startEdit = (record) => {
-    setEditingId(record.id);
-    setNewData(record.data);
-  };
-
   const updateRecord = async () => {
-    if (!newData) return alert("Enter data");
+    if (!editValue) return alert("Enter data");
 
     try {
       const token = localStorage.getItem("token");
 
       await API.put(
-        `/update_record/${editingId}?new_data=${encodeURIComponent(newData)}`,
+        `/update_record/${editId}?new_data=${encodeURIComponent(editValue)}`,
         {},
         { headers: { token } }
       );
 
-      alert("Record updated");
-
-      setEditingId(null);
-      setNewData("");
+      alert("Updated successfully");
+      setEditId(null);
+      setEditValue("");
       fetchRecords();
 
-    } catch (err) {
+    } catch {
       alert("Update failed");
     }
   };
@@ -61,80 +55,85 @@ function DoctorDashboard() {
     <div style={{ fontFamily: "Arial", background: "#f4f6f9", minHeight: "100vh" }}>
 
       {/* HEADER */}
-      <div style={header}>
-        <h2>🩺 MedChain Doctor Dashboard</h2>
+      <div style={{
+        background: "#1f2d3d",
+        color: "white",
+        padding: "20px",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center"
+      }}>
+        <h2>🩺 Doctor Dashboard</h2>
+
         <div>
-          <button style={refreshBtn} onClick={fetchRecords}>Refresh</button>
-          <button style={logoutBtn} onClick={logout}>Logout</button>
+          <button onClick={fetchRecords} style={greenBtn}>Refresh</button>
+          <button onClick={logout} style={redBtn}>Logout</button>
         </div>
       </div>
 
       <div style={{ padding: "20px" }}>
 
-        {/* CARDS */}
+        {/* STATS */}
         <div style={{ display: "flex", gap: "20px", marginBottom: "20px" }}>
-          <div style={cardStyle}>
+          <div style={card}>
             <h3>Total Records</h3>
             <p>{records.length}</p>
           </div>
 
-          <div style={cardStyle}>
+          <div style={card}>
             <h3>Status</h3>
             <p>Active</p>
           </div>
         </div>
 
-        {/* TABLE */}
-        <div style={tableContainer}>
-          <h3>📄 Authorized Patient Records</h3>
+        {/* RECORDS */}
+        <div style={container}>
+          <h3>📄 Patient Records</h3>
 
           {records.length === 0 ? (
-            <p style={{ marginTop: "15px", color: "gray" }}>
-              No records available (patient must grant access)
+            <p style={{ color: "gray" }}>
+              No records — patient must grant access
             </p>
           ) : (
-            <table style={table}>
-              <thead>
-                <tr style={{ background: "#ecf0f1" }}>
-                  <th>ID</th>
-                  <th>Data</th>
-                  <th>Edit</th>
-                </tr>
-              </thead>
+            records.map((r) => (
+              <div key={r.id} style={recordBox}>
 
-              <tbody>
-                {records.map((r) => (
-                  <tr key={r.id}>
-                    <td>{r.id}</td>
-                    <td>{r.data}</td>
-                    <td>
-                      <button style={smallBtn} onClick={() => startEdit(r)}>
-                        Edit
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                <div>
+                  <strong>ID:</strong> {r.id}
+                </div>
+
+                <div style={{ marginTop: "5px" }}>
+                  <strong>Data:</strong> {r.data}
+                </div>
+
+                {editId === r.id ? (
+                  <>
+                    <textarea
+                      value={editValue}
+                      onChange={(e) => setEditValue(e.target.value)}
+                      style={textarea}
+                    />
+
+                    <button onClick={updateRecord} style={greenBtn}>
+                      Save
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => {
+                      setEditId(r.id);
+                      setEditValue(r.data);
+                    }}
+                    style={blueBtn}
+                  >
+                    Edit
+                  </button>
+                )}
+
+              </div>
+            ))
           )}
         </div>
-
-        {/* EDIT SECTION */}
-        {editingId && (
-          <div style={{ ...tableContainer, marginTop: "20px" }}>
-            <h3>Edit Record</h3>
-
-            <textarea
-              style={textarea}
-              value={newData}
-              onChange={(e) => setNewData(e.target.value)}
-            />
-
-            <button style={refreshBtn} onClick={updateRecord}>
-              Update Record
-            </button>
-          </div>
-        )}
 
       </div>
     </div>
@@ -143,44 +142,7 @@ function DoctorDashboard() {
 
 /* STYLES */
 
-const header = {
-  background: "#2c3e50",
-  color: "white",
-  padding: "15px 20px",
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center"
-};
-
-const logoutBtn = {
-  background: "#e74c3c",
-  color: "white",
-  border: "none",
-  padding: "8px 15px",
-  borderRadius: "5px",
-  cursor: "pointer",
-  marginLeft: "10px"
-};
-
-const refreshBtn = {
-  background: "#27ae60",
-  color: "white",
-  border: "none",
-  padding: "8px 15px",
-  borderRadius: "5px",
-  cursor: "pointer"
-};
-
-const smallBtn = {
-  background: "#2980b9",
-  color: "white",
-  border: "none",
-  padding: "8px 12px",
-  borderRadius: "5px",
-  cursor: "pointer"
-};
-
-const cardStyle = {
+const card = {
   flex: 1,
   background: "#3498db",
   color: "white",
@@ -189,26 +151,54 @@ const cardStyle = {
   textAlign: "center"
 };
 
-const tableContainer = {
+const container = {
   background: "#fff",
   padding: "20px",
   borderRadius: "10px",
-  boxShadow: "0 4px 10px rgba(0,0,0,0.1)"
+  boxShadow: "0 2px 10px rgba(0,0,0,0.1)"
 };
 
-const table = {
-  width: "100%",
-  marginTop: "10px",
-  borderCollapse: "collapse"
+const recordBox = {
+  border: "1px solid #ddd",
+  padding: "15px",
+  borderRadius: "8px",
+  marginBottom: "10px"
 };
 
 const textarea = {
   width: "100%",
-  padding: "12px",
-  minHeight: "100px",
-  marginBottom: "12px",
-  borderRadius: "6px",
-  border: "1px solid #ccc"
+  padding: "10px",
+  marginTop: "10px",
+  marginBottom: "10px"
+};
+
+const greenBtn = {
+  background: "#27ae60",
+  color: "white",
+  border: "none",
+  padding: "8px 12px",
+  marginRight: "10px",
+  borderRadius: "5px",
+  cursor: "pointer"
+};
+
+const redBtn = {
+  background: "#e74c3c",
+  color: "white",
+  border: "none",
+  padding: "8px 12px",
+  borderRadius: "5px",
+  cursor: "pointer"
+};
+
+const blueBtn = {
+  background: "#2980b9",
+  color: "white",
+  border: "none",
+  padding: "8px 12px",
+  borderRadius: "5px",
+  cursor: "pointer",
+  marginTop: "10px"
 };
 
 export default DoctorDashboard;
