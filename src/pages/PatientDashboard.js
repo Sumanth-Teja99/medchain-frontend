@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import API from "../services/api";
 
 function PatientDashboard() {
@@ -13,30 +13,21 @@ function PatientDashboard() {
     window.location.href = "/";
   };
 
-  useEffect(() => {
-    async function loadData() {
-      try {
-        const recordsRes = await API.get("/get_records");
-        setRecords(recordsRes.data || []);
-
-        const doctorsRes = await API.get("/doctors");
-        setDoctors(doctorsRes.data || []);
-      } catch (error) {
-        console.log(error);
-      }
-    }
-
-    loadData();
-  }, []);
-
-  const refreshRecords = async () => {
+  const loadData = async () => {
     try {
-      const res = await API.get("/get_records");
-      setRecords(res.data || []);
+      const recordsRes = await API.get("/get_records");
+      setRecords(recordsRes.data || []);
+
+      const doctorsRes = await API.get("/doctors");
+      setDoctors(doctorsRes.data || []);
     } catch (error) {
-      console.log(error);
+      console.log("LOAD DATA ERROR:", error);
     }
   };
+
+  useEffect(() => {
+    loadData();
+  }, []);
 
   const addRecord = async () => {
     if (!data.trim()) {
@@ -46,13 +37,12 @@ function PatientDashboard() {
 
     try {
       await API.post("/add_record", { data });
-
       setData("");
-      await refreshRecords();
+      await loadData();
       alert("Record added successfully");
     } catch (error) {
-      console.log(error);
-      alert("Failed to add record");
+      console.log("ADD RECORD ERROR:", error?.response?.data || error);
+      alert(error?.response?.data?.detail || "Failed to add record");
     }
   };
 
@@ -66,11 +56,10 @@ function PatientDashboard() {
       await API.post(
         `/grant_access?record_id=${recordId}&doctor_id=${selectedDoctor}`
       );
-
       alert("Access granted!");
     } catch (error) {
-      console.log(error);
-      alert("Grant access failed");
+      console.log("GRANT ACCESS ERROR:", error?.response?.data || error);
+      alert(error?.response?.data?.detail || "Grant access failed");
     }
   };
 
@@ -86,12 +75,11 @@ function PatientDashboard() {
       await API.put(
         `/update_record/${recordId}?new_data=${encodeURIComponent(newData)}`
       );
-
-      await refreshRecords();
+      await loadData();
       alert("Record updated");
     } catch (error) {
-      console.log(error);
-      alert("Update failed");
+      console.log("UPDATE ERROR:", error?.response?.data || error);
+      alert(error?.response?.data?.detail || "Update failed");
     }
   };
 
@@ -102,24 +90,19 @@ function PatientDashboard() {
         <button onClick={logout} style={redBtn}>Logout</button>
       </div>
 
-      {/* ADD RECORD */}
       <div style={card}>
         <h3>Add Medical Record</h3>
-
         <textarea
           value={data}
           placeholder="Enter medical data..."
           onChange={(e) => setData(e.target.value)}
           style={textarea}
         />
-
         <button onClick={addRecord} style={blueBtn}>Save Record</button>
       </div>
 
-      {/* SELECT DOCTOR */}
       <div style={card}>
         <h3>Select Doctor for Access</h3>
-
         <select
           value={selectedDoctor}
           onChange={(e) => setSelectedDoctor(e.target.value)}
@@ -134,7 +117,6 @@ function PatientDashboard() {
         </select>
       </div>
 
-      {/* RECORDS */}
       <div style={card}>
         <h3>Your Records</h3>
 
@@ -162,7 +144,6 @@ function PatientDashboard() {
                 <button onClick={() => updateRecord(record.id)} style={greenBtn}>
                   Update
                 </button>
-
                 <button onClick={() => grantAccess(record.id)} style={purpleBtn}>
                   Grant Access
                 </button>
@@ -175,7 +156,6 @@ function PatientDashboard() {
   );
 }
 
-/* STYLES */
 const header = {
   background: "#2c3e50",
   color: "white",
@@ -192,14 +172,60 @@ const card = {
   boxShadow: "0 2px 10px rgba(0,0,0,0.1)"
 };
 
-const textarea = { width: "100%", padding: "10px", marginBottom: "10px" };
-const input = { width: "100%", padding: "8px", marginBottom: "10px" };
-const select = { padding: "10px", width: "200px" };
+const textarea = {
+  width: "100%",
+  minHeight: "100px",
+  padding: "10px",
+  marginBottom: "10px"
+};
 
-const blueBtn = { background: "#3498db", color: "white", padding: "8px", border: "none", borderRadius: "5px" };
-const greenBtn = { background: "#27ae60", color: "white", padding: "8px", marginRight: "10px", border: "none", borderRadius: "5px" };
-const purpleBtn = { background: "#8e44ad", color: "white", padding: "8px", border: "none", borderRadius: "5px" };
-const redBtn = { background: "#e74c3c", color: "white", padding: "8px", border: "none", borderRadius: "5px" };
+const input = {
+  width: "100%",
+  padding: "8px",
+  marginBottom: "10px"
+};
+
+const select = {
+  padding: "10px",
+  width: "220px"
+};
+
+const blueBtn = {
+  background: "#3498db",
+  color: "white",
+  padding: "8px 12px",
+  border: "none",
+  borderRadius: "5px",
+  cursor: "pointer"
+};
+
+const greenBtn = {
+  background: "#27ae60",
+  color: "white",
+  padding: "8px 12px",
+  marginRight: "10px",
+  border: "none",
+  borderRadius: "5px",
+  cursor: "pointer"
+};
+
+const purpleBtn = {
+  background: "#8e44ad",
+  color: "white",
+  padding: "8px 12px",
+  border: "none",
+  borderRadius: "5px",
+  cursor: "pointer"
+};
+
+const redBtn = {
+  background: "#e74c3c",
+  color: "white",
+  padding: "8px 12px",
+  border: "none",
+  borderRadius: "5px",
+  cursor: "pointer"
+};
 
 const recordBox = {
   border: "1px solid #ddd",

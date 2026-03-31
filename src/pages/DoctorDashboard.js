@@ -16,7 +16,7 @@ function DoctorDashboard() {
       const res = await API.get("/get_records");
       setRecords(res.data || []);
     } catch (err) {
-      console.log(err);
+      console.log("FETCH RECORDS ERROR:", err?.response?.data || err);
     }
   };
 
@@ -25,7 +25,10 @@ function DoctorDashboard() {
   }, []);
 
   const updateRecord = async () => {
-    if (!editValue) return alert("Enter data");
+    if (!editValue.trim()) {
+      alert("Enter data");
+      return;
+    }
 
     try {
       await API.put(
@@ -36,8 +39,9 @@ function DoctorDashboard() {
       setEditId(null);
       setEditValue("");
       fetchRecords();
-    } catch {
-      alert("Update failed");
+    } catch (err) {
+      console.log("UPDATE ERROR:", err?.response?.data || err);
+      alert(err?.response?.data?.detail || "Update failed");
     }
   };
 
@@ -45,7 +49,6 @@ function DoctorDashboard() {
     <div style={{ fontFamily: "Arial", background: "#f4f6f9", minHeight: "100vh" }}>
       <div style={header}>
         <h2>🩺 Doctor Dashboard</h2>
-
         <div>
           <button onClick={fetchRecords} style={greenBtn}>Refresh</button>
           <button onClick={logout} style={redBtn}>Logout</button>
@@ -98,7 +101,6 @@ function DoctorDashboard() {
   );
 }
 
-/* STYLES */
 const header = {
   background: "#1f2d3d",
   color: "white",
@@ -121,10 +123,38 @@ const recordBox = {
   borderRadius: "5px"
 };
 
-const textarea = { width: "100%", padding: "10px", marginBottom: "10px" };
+const textarea = {
+  width: "100%",
+  padding: "10px",
+  marginBottom: "10px"
+};
 
-const blueBtn = { background: "#3498db", color: "white", padding: "8px", border: "none", borderRadius: "5px" };
-const greenBtn = { background: "#27ae60", color: "white", padding: "8px", border: "none", borderRadius: "5px" };
-const redBtn = { background: "#e74c3c", color: "white", padding: "8px", border: "none", borderRadius: "5px" };
+const blueBtn = {
+  background: "#3498db",
+  color: "white",
+  padding: "8px",
+  border: "none",
+  borderRadius: "5px",
+  cursor: "pointer"
+};
+
+const greenBtn = {
+  background: "#27ae60",
+  color: "white",
+  padding: "8px",
+  border: "none",
+  borderRadius: "5px",
+  cursor: "pointer",
+  marginRight: "10px"
+};
+
+const redBtn = {
+  background: "#e74c3c",
+  color: "white",
+  padding: "8px",
+  border: "none",
+  borderRadius: "5px",
+  cursor: "pointer"
+};
 
 export default DoctorDashboard;

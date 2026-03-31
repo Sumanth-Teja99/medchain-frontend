@@ -1,18 +1,17 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://medchain-blockchain-backend.onrender.com"
+  baseURL: "https://medchain-blockchain-backend.onrender.com",
 });
 
-// 🔥 attach token automatically
-API.interceptors.request.use((req) => {
+API.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
 
   if (token) {
-    req.headers.Authorization = `Bearer ${token}`;
+    config.headers.token = token;
   }
 
-  return req;
+  return config;
 });
 
 export default API;
