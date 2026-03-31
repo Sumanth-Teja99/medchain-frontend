@@ -16,15 +16,11 @@ function PatientDashboard() {
   useEffect(() => {
     async function loadData() {
       try {
-        const currentToken = localStorage.getItem("token");
-
-        const recordsRes = await API.get("/get_records", {
-          headers: { token: currentToken },
-        });
-        setRecords(recordsRes.data);
+        const recordsRes = await API.get("/get_records");
+        setRecords(recordsRes.data || []);
 
         const doctorsRes = await API.get("/doctors");
-        setDoctors(doctorsRes.data);
+        setDoctors(doctorsRes.data || []);
       } catch (error) {
         console.log(error);
       }
@@ -35,11 +31,8 @@ function PatientDashboard() {
 
   const refreshRecords = async () => {
     try {
-      const currentToken = localStorage.getItem("token");
-      const res = await API.get("/get_records", {
-        headers: { token: currentToken },
-      });
-      setRecords(res.data);
+      const res = await API.get("/get_records");
+      setRecords(res.data || []);
     } catch (error) {
       console.log(error);
     }
@@ -52,16 +45,11 @@ function PatientDashboard() {
     }
 
     try {
-      const currentToken = localStorage.getItem("token");
-
-      await API.post(
-        "/add_record",
-        { data },
-        { headers: { token: currentToken } }
-      );
+      await API.post("/add_record", { data });
 
       setData("");
       await refreshRecords();
+      alert("Record added successfully");
     } catch (error) {
       console.log(error);
       alert("Failed to add record");
@@ -75,12 +63,8 @@ function PatientDashboard() {
     }
 
     try {
-      const currentToken = localStorage.getItem("token");
-
       await API.post(
-        `/grant_access?record_id=${recordId}&doctor_id=${selectedDoctor}`,
-        {},
-        { headers: { token: currentToken } }
+        `/grant_access?record_id=${recordId}&doctor_id=${selectedDoctor}`
       );
 
       alert("Access granted!");
@@ -99,12 +83,8 @@ function PatientDashboard() {
     }
 
     try {
-      const currentToken = localStorage.getItem("token");
-
       await API.put(
-        `/update_record/${recordId}?new_data=${encodeURIComponent(newData)}`,
-        {},
-        { headers: { token: currentToken } }
+        `/update_record/${recordId}?new_data=${encodeURIComponent(newData)}`
       );
 
       await refreshRecords();
@@ -117,84 +97,33 @@ function PatientDashboard() {
 
   return (
     <div style={{ padding: "20px", fontFamily: "Arial", background: "#f4f6f9", minHeight: "100vh" }}>
-      <div
-        style={{
-          background: "#2c3e50",
-          color: "white",
-          padding: "15px 20px",
-          borderRadius: "10px",
-          marginBottom: "20px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <h2 style={{ margin: 0 }}>👤 Patient Dashboard</h2>
-        <button
-          onClick={logout}
-          style={{
-            background: "#e74c3c",
-            color: "white",
-            border: "none",
-            padding: "10px 16px",
-            borderRadius: "6px",
-            cursor: "pointer",
-          }}
-        >
-          Logout
-        </button>
+      <div style={header}>
+        <h2>👤 Patient Dashboard</h2>
+        <button onClick={logout} style={redBtn}>Logout</button>
       </div>
 
-      <div
-        style={{
-          background: "white",
-          padding: "20px",
-          borderRadius: "10px",
-          boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
-          marginBottom: "20px",
-        }}
-      >
+      {/* ADD RECORD */}
+      <div style={card}>
         <h3>Add Medical Record</h3>
 
         <textarea
           value={data}
           placeholder="Enter medical data..."
           onChange={(e) => setData(e.target.value)}
-          style={{ width: "100%", minHeight: "100px", padding: "10px" }}
+          style={textarea}
         />
 
-        <br /><br />
-
-        <button
-          onClick={addRecord}
-          style={{
-            background: "#3498db",
-            color: "white",
-            border: "none",
-            padding: "10px 16px",
-            borderRadius: "6px",
-            cursor: "pointer",
-          }}
-        >
-          Save Record
-        </button>
+        <button onClick={addRecord} style={blueBtn}>Save Record</button>
       </div>
 
-      <div
-        style={{
-          background: "white",
-          padding: "20px",
-          borderRadius: "10px",
-          boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
-          marginBottom: "20px",
-        }}
-      >
+      {/* SELECT DOCTOR */}
+      <div style={card}>
         <h3>Select Doctor for Access</h3>
 
         <select
           value={selectedDoctor}
           onChange={(e) => setSelectedDoctor(e.target.value)}
-          style={{ padding: "10px", minWidth: "220px" }}
+          style={select}
         >
           <option value="">Select Doctor</option>
           {doctors.map((doctor) => (
@@ -205,35 +134,19 @@ function PatientDashboard() {
         </select>
       </div>
 
-      <div
-        style={{
-          background: "white",
-          padding: "20px",
-          borderRadius: "10px",
-          boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
-        }}
-      >
+      {/* RECORDS */}
+      <div style={card}>
         <h3>Your Records</h3>
 
         {records.length === 0 ? (
           <p>No records yet</p>
         ) : (
           records.map((record) => (
-            <div
-              key={record.id}
-              style={{
-                border: "1px solid #ddd",
-                borderRadius: "8px",
-                padding: "15px",
-                marginBottom: "15px",
-              }}
-            >
-              <p><strong>Record ID:</strong> {record.id}</p>
-              <p><strong>Data:</strong> {record.data}</p>
+            <div key={record.id} style={recordBox}>
+              <p><b>ID:</b> {record.id}</p>
+              <p><b>Data:</b> {record.data}</p>
 
               <input
-                type="text"
-                placeholder="Edit data"
                 value={editData[record.id] || ""}
                 onChange={(e) =>
                   setEditData({
@@ -241,41 +154,19 @@ function PatientDashboard() {
                     [record.id]: e.target.value,
                   })
                 }
-                style={{
-                  width: "100%",
-                  padding: "10px",
-                  marginBottom: "10px",
-                }}
+                placeholder="Edit data"
+                style={input}
               />
 
-              <button
-                onClick={() => updateRecord(record.id)}
-                style={{
-                  background: "#27ae60",
-                  color: "white",
-                  border: "none",
-                  padding: "10px 16px",
-                  borderRadius: "6px",
-                  cursor: "pointer",
-                  marginRight: "10px",
-                }}
-              >
-                Update
-              </button>
+              <div>
+                <button onClick={() => updateRecord(record.id)} style={greenBtn}>
+                  Update
+                </button>
 
-              <button
-                onClick={() => grantAccess(record.id)}
-                style={{
-                  background: "#8e44ad",
-                  color: "white",
-                  border: "none",
-                  padding: "10px 16px",
-                  borderRadius: "6px",
-                  cursor: "pointer",
-                }}
-              >
-                Grant Access
-              </button>
+                <button onClick={() => grantAccess(record.id)} style={purpleBtn}>
+                  Grant Access
+                </button>
+              </div>
             </div>
           ))
         )}
@@ -283,5 +174,38 @@ function PatientDashboard() {
     </div>
   );
 }
+
+/* STYLES */
+const header = {
+  background: "#2c3e50",
+  color: "white",
+  padding: "15px",
+  display: "flex",
+  justifyContent: "space-between",
+};
+
+const card = {
+  background: "white",
+  padding: "20px",
+  marginTop: "20px",
+  borderRadius: "10px",
+  boxShadow: "0 2px 10px rgba(0,0,0,0.1)"
+};
+
+const textarea = { width: "100%", padding: "10px", marginBottom: "10px" };
+const input = { width: "100%", padding: "8px", marginBottom: "10px" };
+const select = { padding: "10px", width: "200px" };
+
+const blueBtn = { background: "#3498db", color: "white", padding: "8px", border: "none", borderRadius: "5px" };
+const greenBtn = { background: "#27ae60", color: "white", padding: "8px", marginRight: "10px", border: "none", borderRadius: "5px" };
+const purpleBtn = { background: "#8e44ad", color: "white", padding: "8px", border: "none", borderRadius: "5px" };
+const redBtn = { background: "#e74c3c", color: "white", padding: "8px", border: "none", borderRadius: "5px" };
+
+const recordBox = {
+  border: "1px solid #ddd",
+  padding: "10px",
+  marginTop: "10px",
+  borderRadius: "5px"
+};
 
 export default PatientDashboard;

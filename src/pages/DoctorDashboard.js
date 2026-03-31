@@ -13,12 +13,7 @@ function DoctorDashboard() {
 
   const fetchRecords = async () => {
     try {
-      const token = localStorage.getItem("token");
-
-      const res = await API.get("/get_records", {
-        headers: { token }
-      });
-
+      const res = await API.get("/get_records");
       setRecords(res.data || []);
     } catch (err) {
       console.log(err);
@@ -33,19 +28,14 @@ function DoctorDashboard() {
     if (!editValue) return alert("Enter data");
 
     try {
-      const token = localStorage.getItem("token");
-
       await API.put(
-        `/update_record/${editId}?new_data=${encodeURIComponent(editValue)}`,
-        {},
-        { headers: { token } }
+        `/update_record/${editId}?new_data=${encodeURIComponent(editValue)}`
       );
 
       alert("Updated successfully");
       setEditId(null);
       setEditValue("");
       fetchRecords();
-
     } catch {
       alert("Update failed");
     }
@@ -53,16 +43,7 @@ function DoctorDashboard() {
 
   return (
     <div style={{ fontFamily: "Arial", background: "#f4f6f9", minHeight: "100vh" }}>
-
-      {/* HEADER */}
-      <div style={{
-        background: "#1f2d3d",
-        color: "white",
-        padding: "20px",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center"
-      }}>
+      <div style={header}>
         <h2>🩺 Doctor Dashboard</h2>
 
         <div>
@@ -72,39 +53,21 @@ function DoctorDashboard() {
       </div>
 
       <div style={{ padding: "20px" }}>
-
-        {/* STATS */}
-        <div style={{ display: "flex", gap: "20px", marginBottom: "20px" }}>
-          <div style={card}>
-            <h3>Total Records</h3>
-            <p>{records.length}</p>
-          </div>
-
-          <div style={card}>
-            <h3>Status</h3>
-            <p>Active</p>
-          </div>
+        <div style={card}>
+          <h3>Total Records</h3>
+          <p>{records.length}</p>
         </div>
 
-        {/* RECORDS */}
-        <div style={container}>
-          <h3>📄 Patient Records</h3>
+        <div style={card}>
+          <h3>Patient Records</h3>
 
           {records.length === 0 ? (
-            <p style={{ color: "gray" }}>
-              No records — patient must grant access
-            </p>
+            <p>No records available</p>
           ) : (
             records.map((r) => (
               <div key={r.id} style={recordBox}>
-
-                <div>
-                  <strong>ID:</strong> {r.id}
-                </div>
-
-                <div style={{ marginTop: "5px" }}>
-                  <strong>Data:</strong> {r.data}
-                </div>
+                <p><b>ID:</b> {r.id}</p>
+                <p><b>Data:</b> {r.data}</p>
 
                 {editId === r.id ? (
                   <>
@@ -113,10 +76,7 @@ function DoctorDashboard() {
                       onChange={(e) => setEditValue(e.target.value)}
                       style={textarea}
                     />
-
-                    <button onClick={updateRecord} style={greenBtn}>
-                      Save
-                    </button>
+                    <button onClick={updateRecord} style={greenBtn}>Save</button>
                   </>
                 ) : (
                   <button
@@ -129,76 +89,42 @@ function DoctorDashboard() {
                     Edit
                   </button>
                 )}
-
               </div>
             ))
           )}
         </div>
-
       </div>
     </div>
   );
 }
 
 /* STYLES */
-
-const card = {
-  flex: 1,
-  background: "#3498db",
+const header = {
+  background: "#1f2d3d",
   color: "white",
-  padding: "20px",
-  borderRadius: "10px",
-  textAlign: "center"
+  padding: "15px",
+  display: "flex",
+  justifyContent: "space-between"
 };
 
-const container = {
-  background: "#fff",
+const card = {
+  background: "white",
   padding: "20px",
-  borderRadius: "10px",
-  boxShadow: "0 2px 10px rgba(0,0,0,0.1)"
+  marginTop: "20px",
+  borderRadius: "10px"
 };
 
 const recordBox = {
   border: "1px solid #ddd",
-  padding: "15px",
-  borderRadius: "8px",
-  marginBottom: "10px"
-};
-
-const textarea = {
-  width: "100%",
   padding: "10px",
   marginTop: "10px",
-  marginBottom: "10px"
+  borderRadius: "5px"
 };
 
-const greenBtn = {
-  background: "#27ae60",
-  color: "white",
-  border: "none",
-  padding: "8px 12px",
-  marginRight: "10px",
-  borderRadius: "5px",
-  cursor: "pointer"
-};
+const textarea = { width: "100%", padding: "10px", marginBottom: "10px" };
 
-const redBtn = {
-  background: "#e74c3c",
-  color: "white",
-  border: "none",
-  padding: "8px 12px",
-  borderRadius: "5px",
-  cursor: "pointer"
-};
-
-const blueBtn = {
-  background: "#2980b9",
-  color: "white",
-  border: "none",
-  padding: "8px 12px",
-  borderRadius: "5px",
-  cursor: "pointer",
-  marginTop: "10px"
-};
+const blueBtn = { background: "#3498db", color: "white", padding: "8px", border: "none", borderRadius: "5px" };
+const greenBtn = { background: "#27ae60", color: "white", padding: "8px", border: "none", borderRadius: "5px" };
+const redBtn = { background: "#e74c3c", color: "white", padding: "8px", border: "none", borderRadius: "5px" };
 
 export default DoctorDashboard;
