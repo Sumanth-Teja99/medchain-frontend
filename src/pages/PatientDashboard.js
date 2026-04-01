@@ -9,22 +9,16 @@ function PatientDashboard() {
   const [records, setRecords] = useState([]);
   const [doctors, setDoctors] = useState([]);
   const [selectedDoctor, setSelectedDoctor] = useState("");
-  const [editData, setEditData] = useState({});
-
-  const logout = () => {
-    localStorage.clear();
-    window.location.href = "/";
-  };
 
   const loadData = async () => {
     try {
-      const recordsRes = await API.get("/get_records");
-      setRecords(recordsRes.data || []);
+      const rec = await API.get("/get_records");
+      setRecords(rec.data || []);
 
-      const doctorsRes = await API.get("/doctors");
-      setDoctors(doctorsRes.data || []);
-    } catch (error) {
-      console.log(error);
+      const doc = await API.get("/doctors");
+      setDoctors(doc.data || []);
+    } catch (err) {
+      console.log(err);
     }
   };
 
@@ -39,7 +33,7 @@ function PatientDashboard() {
       await API.post("/add_record", { data });
       setData("");
       loadData();
-    } catch (err) {
+    } catch {
       alert("Failed to add record");
     }
   };
@@ -51,20 +45,13 @@ function PatientDashboard() {
       await API.post(`/grant_access?record_id=${id}&doctor_id=${selectedDoctor}`);
       alert("Access granted");
     } catch {
-      alert("Grant failed");
+      alert("Failed");
     }
   };
 
-  const updateRecord = async (id) => {
-    const newData = editData[id];
-    if (!newData) return alert("Enter new data");
-
-    try {
-      await API.put(`/update_record/${id}?new_data=${encodeURIComponent(newData)}`);
-      loadData();
-    } catch {
-      alert("Update failed");
-    }
+  const logout = () => {
+    localStorage.clear();
+    window.location.href = "/";
   };
 
   return (
@@ -73,7 +60,6 @@ function PatientDashboard() {
       {/* SIDEBAR */}
       <div style={sidebar}>
         <h3>🏥 MedChain</h3>
-        <p>Patient Panel</p>
 
         <button onClick={() => navigate("/chat")} style={menuBtn}>Chat</button>
         <button onClick={() => navigate("/profile")} style={menuBtn}>Profile</button>
@@ -84,46 +70,53 @@ function PatientDashboard() {
 
       {/* MAIN */}
       <div style={{ flex: 1, padding: "20px" }}>
-
         <h2>Patient Dashboard</h2>
 
         {/* ADD RECORD */}
         <div style={card}>
-          <h4>Add Record</h4>
-          <textarea value={data} onChange={(e) => setData(e.target.value)} style={textarea}/>
-          <button onClick={addRecord} style={blueBtn}>Save</button>
+          <textarea
+            value={data}
+            onChange={(e) => setData(e.target.value)}
+            placeholder="Enter medical data"
+            style={textarea}
+          />
+          <button onClick={addRecord}>Add Record</button>
         </div>
 
         {/* SELECT DOCTOR */}
         <div style={card}>
-          <h4>Grant Access</h4>
-          <select value={selectedDoctor} onChange={(e) => setSelectedDoctor(e.target.value)}>
+          <select onChange={(e) => setSelectedDoctor(e.target.value)}>
             <option value="">Select Doctor</option>
-            {doctors.map(d => (
-              <option key={d.id} value={d.id}>{d.username}</option>
+            {doctors.map((d) => (
+              <option key={d.id} value={d.id}>
+                {d.username}
+              </option>
             ))}
           </select>
         </div>
 
         {/* RECORDS */}
         <div style={card}>
-          <h4>Your Records</h4>
+          <h3>Your Records</h3>
 
-          {records.map(r => (
-            <div key={r.id} style={recordBox}>
-              <p>{r.data}</p>
+          {records.map((record) => (
+            <div key={record.id} style={recordBox}>
+              <p><b>Data:</b> {record.data}</p>
 
-              <input
-                value={editData[r.id] || ""}
-                onChange={(e) => setEditData({...editData, [r.id]: e.target.value})}
-              />
+              {/* 🔥 BLOCKCHAIN DATA */}
+              <p><b>Previous Hash:</b> {record.previous_hash}</p>
+              <p><b>Record Hash:</b> {record.record_hash}</p>
+              <p>
+                <b>Status:</b>{" "}
+                {record.verified ? "Verified ✅" : "Tampered ❌"}
+              </p>
 
-              <button onClick={() => updateRecord(r.id)} style={greenBtn}>Update</button>
-              <button onClick={() => grantAccess(r.id)} style={purpleBtn}>Grant</button>
+              <button onClick={() => grantAccess(record.id)}>
+                Grant Access
+              </button>
             </div>
           ))}
         </div>
-
       </div>
     </div>
   );
@@ -134,7 +127,7 @@ const sidebar = {
   background: "#2c3e50",
   color: "white",
   padding: "20px",
-  height: "100vh"
+  height: "100vh",
 };
 
 const menuBtn = {
@@ -142,24 +135,30 @@ const menuBtn = {
   width: "100%",
   margin: "10px 0",
   padding: "10px",
-  background: "#34495e",
-  color: "white",
-  border: "none"
 };
 
 const logoutBtn = {
-  marginTop: "20px",
   background: "red",
   color: "white",
   padding: "10px",
-  border: "none"
+  marginTop: "20px",
 };
 
-const card = { background: "white", padding: "15px", marginTop: "20px" };
-const textarea = { width: "100%", height: "80px" };
-const blueBtn = { background: "#3498db", color: "white", padding: "8px" };
-const greenBtn = { background: "green", color: "white", marginRight: "10px" };
-const purpleBtn = { background: "purple", color: "white" };
-const recordBox = { border: "1px solid #ccc", padding: "10px", marginTop: "10px" };
+const card = {
+  marginTop: "20px",
+  padding: "15px",
+  background: "#ecf0f1",
+};
+
+const textarea = {
+  width: "100%",
+  height: "80px",
+};
+
+const recordBox = {
+  border: "1px solid #ccc",
+  padding: "10px",
+  marginTop: "10px",
+};
 
 export default PatientDashboard;
