@@ -20,122 +20,108 @@ function DoctorDashboard() {
   };
 
   useEffect(() => {
-    if (localStorage.getItem("role") !== "doctor") {
-      alert("Please login as Doctor");
-      localStorage.clear();
-      window.location.href = "/login/Doctor";
-      return;
-    }
-
     loadRecords();
   }, []);
 
   const updateRecord = async (id) => {
     const newData = editData[id];
 
-    if (!newData || !newData.trim()) {
-      alert("Enter data");
-      return;
-    }
+    if (!newData) return alert("Enter data");
 
     try {
       await API.put(`/update_record/${id}?new_data=${encodeURIComponent(newData)}`);
-      alert("Updated successfully");
+      alert("Updated!");
       loadRecords();
     } catch (err) {
-      alert(err?.response?.data?.detail || "Update failed");
+      alert("Update failed");
     }
   };
 
   return (
-    <div style={{ padding: "20px", background: "#f4f6f9", minHeight: "100vh" }}>
-      <div style={header}>
-        <h2>👨‍⚕️ Doctor Dashboard</h2>
-        <button onClick={logout} style={logoutBtn}>Logout</button>
+    <div className="d-flex">
+
+      {/* SIDEBAR */}
+      <div style={sidebar}>
+        <h4>🏥 MedChain</h4>
+        <p>Doctor Panel</p>
+        <button className="btn btn-danger w-100" onClick={logout}>
+          Logout
+        </button>
       </div>
 
-      <div style={card}>
-        <h3>Accessible Patient Records</h3>
+      {/* MAIN CONTENT */}
+      <div style={{ flex: 1, padding: "20px" }}>
 
-        {records.length === 0 ? (
-          <p>No records available</p>
-        ) : (
-          records.map((record) => (
-            <div key={record.id} style={recordBox}>
-              <p><b>ID:</b> {record.id}</p>
-              <p><b>Data:</b> {record.data}</p>
+        {/* TOPBAR */}
+        <div className="d-flex justify-content-between mb-4">
+          <h2>Doctor Dashboard</h2>
+        </div>
 
-              <input
-                placeholder="Edit record"
-                value={editData[record.id] || ""}
-                onChange={(e) =>
-                  setEditData({
-                    ...editData,
-                    [record.id]: e.target.value,
-                  })
-                }
-                style={input}
-              />
-
-              <button
-                onClick={() => updateRecord(record.id)}
-                style={updateBtn}
-              >
-                Update Record
-              </button>
+        {/* STATS */}
+        <div className="row mb-4">
+          <div className="col-md-4">
+            <div className="card text-center p-3">
+              <h5>Total Records</h5>
+              <h3>{records.length}</h3>
             </div>
-          ))
-        )}
+          </div>
+
+          <div className="col-md-4">
+            <div className="card text-center p-3">
+              <h5>Status</h5>
+              <h3>Active</h3>
+            </div>
+          </div>
+        </div>
+
+        {/* RECORDS */}
+        <div className="card p-3">
+          <h4>Patient Records</h4>
+
+          {records.length === 0 ? (
+            <p>No records available</p>
+          ) : (
+            records.map((r) => (
+              <div key={r.id} className="border p-3 mt-2 rounded">
+
+                <p><b>ID:</b> {r.id}</p>
+                <p><b>Data:</b> {r.data}</p>
+
+                <input
+                  className="form-control mb-2"
+                  placeholder="Edit record"
+                  value={editData[r.id] || ""}
+                  onChange={(e) =>
+                    setEditData({
+                      ...editData,
+                      [r.id]: e.target.value,
+                    })
+                  }
+                />
+
+                <button
+                  className="btn btn-success"
+                  onClick={() => updateRecord(r.id)}
+                >
+                  Update
+                </button>
+
+              </div>
+            ))
+          )}
+        </div>
+
       </div>
     </div>
   );
 }
 
-const header = {
-  display: "flex",
-  justifyContent: "space-between",
+const sidebar = {
+  width: "250px",
   background: "#2c3e50",
   color: "white",
-  padding: "15px",
-};
-
-const card = {
-  background: "white",
+  height: "100vh",
   padding: "20px",
-  marginTop: "20px",
-  borderRadius: "10px",
-};
-
-const recordBox = {
-  border: "1px solid #ddd",
-  padding: "10px",
-  marginTop: "10px",
-  borderRadius: "6px",
-};
-
-const input = {
-  width: "100%",
-  padding: "8px",
-  marginTop: "10px",
-};
-
-const updateBtn = {
-  marginTop: "10px",
-  background: "#27ae60",
-  color: "white",
-  border: "none",
-  padding: "8px 12px",
-  borderRadius: "5px",
-  cursor: "pointer",
-};
-
-const logoutBtn = {
-  background: "#e74c3c",
-  color: "white",
-  border: "none",
-  padding: "8px 12px",
-  borderRadius: "5px",
-  cursor: "pointer",
 };
 
 export default DoctorDashboard;
