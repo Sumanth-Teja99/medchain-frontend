@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import API from "../services/api";
+import { useNavigate } from "react-router-dom";
 
 function DoctorDashboard() {
+  const navigate = useNavigate();
   const [records, setRecords] = useState([]);
   const [editData, setEditData] = useState({});
 
@@ -11,12 +13,8 @@ function DoctorDashboard() {
   };
 
   const loadRecords = async () => {
-    try {
-      const res = await API.get("/get_records");
-      setRecords(res.data || []);
-    } catch (err) {
-      console.log(err);
-    }
+    const res = await API.get("/get_records");
+    setRecords(res.data || []);
   };
 
   useEffect(() => {
@@ -25,90 +23,51 @@ function DoctorDashboard() {
 
   const updateRecord = async (id) => {
     const newData = editData[id];
+    if (!newData) return;
 
-    if (!newData) return alert("Enter data");
-
-    try {
-      await API.put(`/update_record/${id}?new_data=${encodeURIComponent(newData)}`);
-      alert("Updated!");
-      loadRecords();
-    } catch (err) {
-      alert("Update failed");
-    }
+    await API.put(`/update_record/${id}?new_data=${encodeURIComponent(newData)}`);
+    loadRecords();
   };
 
   return (
-    <div className="d-flex">
+    <div style={{ display: "flex" }}>
 
       {/* SIDEBAR */}
       <div style={sidebar}>
-        <h4>🏥 MedChain</h4>
+        <h3>🏥 MedChain</h3>
         <p>Doctor Panel</p>
-        <button className="btn btn-danger w-100" onClick={logout}>
-          Logout
-        </button>
+
+        <button onClick={() => navigate("/chat")} style={menuBtn}>Chat</button>
+        <button onClick={() => navigate("/profile")} style={menuBtn}>Profile</button>
+        <button onClick={() => navigate("/settings")} style={menuBtn}>Settings</button>
+
+        <button onClick={logout} style={logoutBtn}>Logout</button>
       </div>
 
-      {/* MAIN CONTENT */}
+      {/* MAIN */}
       <div style={{ flex: 1, padding: "20px" }}>
 
-        {/* TOPBAR */}
-        <div className="d-flex justify-content-between mb-4">
-          <h2>Doctor Dashboard</h2>
+        <h2>Doctor Dashboard</h2>
+
+        <div style={card}>
+          <h4>Total Records: {records.length}</h4>
         </div>
 
-        {/* STATS */}
-        <div className="row mb-4">
-          <div className="col-md-4">
-            <div className="card text-center p-3">
-              <h5>Total Records</h5>
-              <h3>{records.length}</h3>
+        <div style={card}>
+          {records.map(r => (
+            <div key={r.id} style={recordBox}>
+              <p>{r.data}</p>
+
+              <input
+                value={editData[r.id] || ""}
+                onChange={(e) => setEditData({...editData, [r.id]: e.target.value})}
+              />
+
+              <button onClick={() => updateRecord(r.id)} style={greenBtn}>
+                Update
+              </button>
             </div>
-          </div>
-
-          <div className="col-md-4">
-            <div className="card text-center p-3">
-              <h5>Status</h5>
-              <h3>Active</h3>
-            </div>
-          </div>
-        </div>
-
-        {/* RECORDS */}
-        <div className="card p-3">
-          <h4>Patient Records</h4>
-
-          {records.length === 0 ? (
-            <p>No records available</p>
-          ) : (
-            records.map((r) => (
-              <div key={r.id} className="border p-3 mt-2 rounded">
-
-                <p><b>ID:</b> {r.id}</p>
-                <p><b>Data:</b> {r.data}</p>
-
-                <input
-                  className="form-control mb-2"
-                  placeholder="Edit record"
-                  value={editData[r.id] || ""}
-                  onChange={(e) =>
-                    setEditData({
-                      ...editData,
-                      [r.id]: e.target.value,
-                    })
-                  }
-                />
-
-                <button
-                  className="btn btn-success"
-                  onClick={() => updateRecord(r.id)}
-                >
-                  Update
-                </button>
-
-              </div>
-            ))
-          )}
+          ))}
         </div>
 
       </div>
@@ -117,11 +76,33 @@ function DoctorDashboard() {
 }
 
 const sidebar = {
-  width: "250px",
+  width: "220px",
   background: "#2c3e50",
   color: "white",
-  height: "100vh",
   padding: "20px",
+  height: "100vh"
 };
+
+const menuBtn = {
+  display: "block",
+  width: "100%",
+  margin: "10px 0",
+  padding: "10px",
+  background: "#34495e",
+  color: "white",
+  border: "none"
+};
+
+const logoutBtn = {
+  marginTop: "20px",
+  background: "red",
+  color: "white",
+  padding: "10px",
+  border: "none"
+};
+
+const card = { background: "white", padding: "15px", marginTop: "20px" };
+const recordBox = { border: "1px solid #ccc", padding: "10px", marginTop: "10px" };
+const greenBtn = { background: "green", color: "white" };
 
 export default DoctorDashboard;
