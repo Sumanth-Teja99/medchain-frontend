@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import API from "../services/api";
 import { useNavigate } from "react-router-dom";
+import bg from "../assets/patient.jpg";
 
 function PatientDashboard() {
   const navigate = useNavigate();
@@ -12,11 +13,15 @@ function PatientDashboard() {
   const [verifyResult, setVerifyResult] = useState(null);
 
   const loadData = async () => {
-    const rec = await API.get("/get_records");
-    setRecords(rec.data || []);
+    try {
+      const rec = await API.get("/get_records");
+      setRecords(rec.data || []);
 
-    const doc = await API.get("/doctors");
-    setDoctors(doc.data || []);
+      const doc = await API.get("/doctors");
+      setDoctors(doc.data || []);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   useEffect(() => {
@@ -49,114 +54,123 @@ function PatientDashboard() {
   };
 
   return (
-    <div style={{ display: "flex" }}>
+    <div style={page(bg)}>
+      <div style={overlay}>
 
-      {/* SIDEBAR */}
-      <div style={sidebar}>
-        <h3>🏥 MedChain</h3>
+        {/* SIDEBAR */}
+        <div style={sidebar}>
+          <h3>🏥 MedChain</h3>
 
-        <button onClick={() => navigate("/chat")} style={menuBtn}>Chat</button>
-        <button onClick={() => navigate("/profile")} style={menuBtn}>Profile</button>
-        <button onClick={() => navigate("/settings")} style={menuBtn}>Settings</button>
+          <button onClick={() => navigate("/chat")} style={menuBtn}>Chat</button>
+          <button onClick={() => navigate("/profile")} style={menuBtn}>Profile</button>
+          <button onClick={() => navigate("/settings")} style={menuBtn}>Settings</button>
 
-        <button onClick={logout} style={logoutBtn}>Logout</button>
-      </div>
-
-      {/* MAIN */}
-      <div style={{ flex: 1, padding: "20px" }}>
-        <h2>Patient Dashboard</h2>
-
-        {/* ADD RECORD */}
-        <div style={card}>
-          <textarea
-            value={data}
-            onChange={(e) => setData(e.target.value)}
-            placeholder="Enter medical data"
-            style={textarea}
-          />
-          <button onClick={addRecord}>Add Record</button>
+          <button onClick={logout} style={logoutBtn}>Logout</button>
         </div>
 
-        {/* VERIFY BUTTON */}
-        <button onClick={verifyBlockchain} style={{ marginTop: "15px" }}>
-          Verify Blockchain
-        </button>
+        {/* MAIN */}
+        <div style={main}>
+          <h2>Patient Dashboard</h2>
 
-        {verifyResult && (
-          <div style={{ marginTop: "10px" }}>
+          {/* ADD RECORD */}
+          <div style={card}>
+            <textarea
+              value={data}
+              onChange={(e) => setData(e.target.value)}
+              placeholder="Enter medical data"
+              style={textarea}
+            />
+            <button onClick={addRecord}>Add Record</button>
+          </div>
+
+          {/* VERIFY */}
+          <button onClick={verifyBlockchain} style={{ marginTop: "10px" }}>
+            Verify Blockchain
+          </button>
+
+          {verifyResult && (
             <h4>
               {verifyResult.chain_valid
                 ? "Blockchain Valid ✅"
                 : "Blockchain Broken ❌"}
             </h4>
-            <p>Total Records: {verifyResult.total_records}</p>
+          )}
+
+          {/* DOCTOR SELECT */}
+          <div style={card}>
+            <select onChange={(e) => setSelectedDoctor(e.target.value)}>
+              <option value="">Select Doctor</option>
+              {doctors.map((d) => (
+                <option key={d.id} value={d.id}>{d.username}</option>
+              ))}
+            </select>
           </div>
-        )}
 
-        {/* SELECT DOCTOR */}
-        <div style={card}>
-          <select onChange={(e) => setSelectedDoctor(e.target.value)}>
-            <option value="">Select Doctor</option>
-            {doctors.map((d) => (
-              <option key={d.id} value={d.id}>
-                {d.username}
-              </option>
+          {/* RECORDS */}
+          <div style={card}>
+            {records.map((r) => (
+              <div key={r.id} style={recordBox}>
+                <p>{r.data}</p>
+                <p>Prev Hash: {r.previous_hash}</p>
+                <p>Hash: {r.record_hash}</p>
+                <p>{r.verified ? "Verified ✅" : "Tampered ❌"}</p>
+
+                <button onClick={() => grantAccess(r.id)}>
+                  Grant Access
+                </button>
+              </div>
             ))}
-          </select>
-        </div>
+          </div>
 
-        {/* RECORDS */}
-        <div style={card}>
-          <h3>Your Records</h3>
-
-          {records.map((record) => (
-            <div key={record.id} style={recordBox}>
-              <p><b>Data:</b> {record.data}</p>
-
-              <p><b>Previous Hash:</b> {record.previous_hash}</p>
-              <p><b>Record Hash:</b> {record.record_hash}</p>
-              <p>
-                <b>Status:</b>{" "}
-                {record.verified ? "Verified ✅" : "Tampered ❌"}
-              </p>
-
-              <button onClick={() => grantAccess(record.id)}>
-                Grant Access
-              </button>
-            </div>
-          ))}
         </div>
       </div>
     </div>
   );
 }
 
+/* STYLES */
+const page = (img) => ({
+  minHeight: "100vh",
+  backgroundImage: `url(${img})`,
+  backgroundSize: "cover",
+});
+
+const overlay = {
+  display: "flex",
+  background: "rgba(0,0,0,0.4)",
+};
+
 const sidebar = {
   width: "220px",
   background: "#2c3e50",
   color: "white",
   padding: "20px",
-  height: "100vh",
+};
+
+const main = {
+  flex: 1,
+  padding: "20px",
 };
 
 const menuBtn = {
   display: "block",
-  width: "100%",
   margin: "10px 0",
   padding: "10px",
+  width: "100%",
 };
 
 const logoutBtn = {
   background: "red",
   color: "white",
-  padding: "10px",
   marginTop: "20px",
+  padding: "10px",
 };
 
 const card = {
-  marginTop: "20px",
+  background: "rgba(255,255,255,0.9)",
   padding: "15px",
-  background: "#ecf0f1",
+  marginTop: "20px",
+  borderRadius: "10px",
 };
 
 const textarea = {
