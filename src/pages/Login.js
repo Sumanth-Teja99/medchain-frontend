@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import API from "../services/api";
 import { useNavigate, useParams } from "react-router-dom";
-import bg from "../assets/login.jpg";
+import loginBg from "../assets/login.jpg";
 
 function Login() {
   const navigate = useNavigate();
@@ -54,32 +54,30 @@ function Login() {
   };
 
   return (
-    <div style={page(bg)}>
+    <div style={page(loginBg)}>
       <div style={overlay}>
-        <div style={loginShell}>
+        <div style={shell}>
           <div style={leftPanel}>
-            <div style={brandBlock}>
-              <div style={logoCircle}>🏥</div>
-              <h1 style={title}>MedChain Secure Access</h1>
-              <p style={subtitle}>
-                Hospital-grade access for {roleLabel.toLowerCase()} users with
-                blockchain-backed record verification and privacy controls.
-              </p>
-            </div>
+            <div style={logo}>🏥</div>
+            <h1 style={headline}>Secure {roleLabel} Login</h1>
+            <p style={description}>
+              Sign in to continue to the MedChain hospital portal with protected,
+              blockchain-verified healthcare records.
+            </p>
 
-            <div style={infoBox}>
-              <div style={infoItem}>🔐 Encrypted Authentication</div>
-              <div style={infoItem}>🧾 Blockchain Integrity Check</div>
-              <div style={infoItem}>👨‍⚕️ Role-Based Secure Access</div>
+            <div style={benefits}>
+              <div style={benefit}>🔐 Encrypted authentication</div>
+              <div style={benefit}>📁 Role-based record access</div>
+              <div style={benefit}>⛓️ Blockchain integrity verification</div>
             </div>
           </div>
 
           <div style={rightPanel}>
             <div style={formCard}>
-              <div style={pill}>{roleLabel} Login</div>
+              <div style={pill}>{roleLabel} Portal</div>
               <h2 style={{ marginBottom: "8px" }}>Welcome Back</h2>
               <p style={muted}>
-                Sign in to access your secure medical portal.
+                Enter your account details to continue.
               </p>
 
               <label style={label}>Username</label>
@@ -99,20 +97,16 @@ function Login() {
                 onChange={(e) => setPassword(e.target.value)}
               />
 
-              <button
-                style={loginBtn}
-                onClick={handleLogin}
-                disabled={loading}
-              >
+              <button style={loginBtn} onClick={handleLogin} disabled={loading}>
                 {loading ? "Signing in..." : `Login as ${roleLabel}`}
               </button>
 
-              <div style={footerActions}>
-                <button style={linkBtn} onClick={() => navigate("/register")}>
+              <div style={actionRow}>
+                <button style={secondaryBtn} onClick={() => navigate("/register")}>
                   Create Account
                 </button>
-                <button style={linkBtn} onClick={() => navigate("/")}>
-                  Back to Role Select
+                <button style={secondaryBtn} onClick={() => navigate("/")}>
+                  Back
                 </button>
               </div>
             </div>
@@ -133,78 +127,73 @@ const page = (img) => ({
 
 const overlay = {
   minHeight: "100vh",
-  background: "linear-gradient(rgba(8,15,30,0.72), rgba(8,15,30,0.72))",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
+  background: "linear-gradient(rgba(8,15,30,0.72), rgba(8,15,30,0.76))",
   padding: "30px",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
 };
 
-const loginShell = {
+const shell = {
   width: "100%",
-  maxWidth: "1120px",
-  minHeight: "650px",
+  maxWidth: "1180px",
   display: "grid",
   gridTemplateColumns: "1fr 0.95fr",
-  borderRadius: "24px",
+  borderRadius: "26px",
   overflow: "hidden",
   boxShadow: "0 25px 60px rgba(0,0,0,0.35)",
 };
 
 const leftPanel = {
-  background: "linear-gradient(135deg, rgba(15,98,254,0.88), rgba(11,37,69,0.9))",
+  background: "linear-gradient(135deg, rgba(15,98,254,0.86), rgba(11,37,69,0.92))",
   color: "white",
-  padding: "50px 46px",
+  padding: "46px",
   display: "flex",
   flexDirection: "column",
-  justifyContent: "space-between",
+  justifyContent: "center",
 };
 
 const rightPanel = {
   background: "rgba(255,255,255,0.95)",
+  padding: "40px",
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  padding: "36px",
 };
 
-const brandBlock = {
-  maxWidth: "480px",
-};
-
-const logoCircle = {
+const logo = {
   width: "72px",
   height: "72px",
   borderRadius: "50%",
   background: "rgba(255,255,255,0.16)",
   display: "flex",
-  justifyContent: "center",
   alignItems: "center",
+  justifyContent: "center",
   fontSize: "34px",
-  marginBottom: "20px",
+  marginBottom: "18px",
 };
 
-const title = {
-  fontSize: "40px",
+const headline = {
+  fontSize: "42px",
   lineHeight: "1.15",
-  marginBottom: "14px",
+  margin: "0 0 14px 0",
 };
 
-const subtitle = {
+const description = {
+  color: "rgba(255,255,255,0.9)",
+  lineHeight: "1.8",
   fontSize: "16px",
-  lineHeight: "1.75",
-  color: "rgba(255,255,255,0.88)",
+  marginBottom: "22px",
 };
 
-const infoBox = {
+const benefits = {
   display: "grid",
   gap: "12px",
-  marginTop: "20px",
 };
 
-const infoItem = {
+const benefit = {
   background: "rgba(255,255,255,0.10)",
-  border: "1px solid rgba(255,255,255,0.16)",
+  border: "1px solid rgba(255,255,255,0.15)",
   borderRadius: "14px",
   padding: "14px 16px",
 };
@@ -212,9 +201,9 @@ const infoItem = {
 const formCard = {
   width: "100%",
   maxWidth: "420px",
-  background: "#ffffff",
-  borderRadius: "20px",
-  padding: "34px",
+  background: "white",
+  borderRadius: "22px",
+  padding: "32px",
   boxShadow: "0 12px 30px rgba(15,23,42,0.10)",
 };
 
@@ -232,7 +221,7 @@ const pill = {
 const muted = {
   color: "#64748b",
   marginTop: 0,
-  marginBottom: "22px",
+  marginBottom: "20px",
 };
 
 const label = {
@@ -264,14 +253,13 @@ const loginBtn = {
   cursor: "pointer",
 };
 
-const footerActions = {
+const actionRow = {
   display: "flex",
-  justifyContent: "space-between",
   gap: "12px",
-  marginTop: "18px",
+  marginTop: "16px",
 };
 
-const linkBtn = {
+const secondaryBtn = {
   flex: 1,
   background: "#f8fafc",
   border: "1px solid #e2e8f0",

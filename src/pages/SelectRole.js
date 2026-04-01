@@ -1,51 +1,77 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import bg from "../assets/role.jpg";
+import roleBg from "../assets/role.jpg";
 
 function SelectRole() {
   const navigate = useNavigate();
 
   return (
-    <div style={page(bg)}>
+    <div style={page(roleBg)}>
       <div style={overlay}>
-        <div style={heroCard}>
+        <div style={wrapper}>
           <div style={leftPanel}>
-            <h1 style={title}>Privacy-Preserving Medical Record</h1>
+            <div style={brandBadge}>🏥 MedChain</div>
+            <h1 style={title}>Privacy-Preserving Medical Record Portal</h1>
             <p style={subtitle}>
-              Secure blockchain-enabled hospital portal for doctors and patients.
+              Secure blockchain-enabled healthcare portal for patients and
+              doctors. Access records, verify integrity, and communicate safely.
             </p>
 
-            <div style={badgeRow}>
-              <span style={badge}>Secure Access</span>
-              <span style={badge}>Blockchain Verified</span>
-              <span style={badge}>Hospital Portal</span>
+            <div style={featureGrid}>
+              <div style={featureCard}>
+                <h3 style={featureTitle}>🔐 Secure Access</h3>
+                <p style={featureText}>Role-based login for patient and doctor users.</p>
+              </div>
+
+              <div style={featureCard}>
+                <h3 style={featureTitle}>⛓️ Blockchain Verified</h3>
+                <p style={featureText}>Medical records are protected with hash verification.</p>
+              </div>
+
+              <div style={featureCard}>
+                <h3 style={featureTitle}>💬 Communication</h3>
+                <p style={featureText}>Built-in doctor-patient portal experience.</p>
+              </div>
+
+              <div style={featureCard}>
+                <h3 style={featureTitle}>🏥 Hospital UI</h3>
+                <p style={featureText}>Professional interface for final-year project demo.</p>
+              </div>
             </div>
           </div>
 
           <div style={rightPanel}>
-            <h2 style={{ marginTop: 0 }}>Select Login Type</h2>
-            <p style={smallText}>
-              Continue as doctor or patient to access your secure dashboard.
-            </p>
+            <div style={glassCard}>
+              <h2 style={rightTitle}>Select Login Type</h2>
+              <p style={rightSubtitle}>
+                Choose the portal you want to continue with.
+              </p>
 
-            <div style={cardWrap}>
-              <div style={roleCard} onClick={() => navigate("/login/doctor")}>
+              <div style={portalCard} onClick={() => navigate("/login/doctor")}>
                 <div style={iconCircle}>👨‍⚕️</div>
-                <h3 style={cardTitle}>Doctor Portal</h3>
-                <p style={cardText}>
-                  View granted records, verify blockchain integrity, and manage consultations.
-                </p>
-                <button style={primaryBtn}>Doctor Login</button>
+                <div>
+                  <h3 style={portalTitle}>Doctor Portal</h3>
+                  <p style={portalText}>
+                    Review granted patient records, verify blockchain integrity,
+                    and manage consultations.
+                  </p>
+                </div>
               </div>
 
-              <div style={roleCard} onClick={() => navigate("/login/patient")}>
-                <div style={iconCircle}>🧑‍🦽</div>
-                <h3 style={cardTitle}>Patient Portal</h3>
-                <p style={cardText}>
-                  Add records, grant doctor access, and manage your medical profile securely.
-                </p>
-                <button style={secondaryBtn}>Patient Login</button>
+              <div style={portalCard} onClick={() => navigate("/login/patient")}>
+                <div style={iconCircle}>🧑‍⚕️</div>
+                <div>
+                  <h3 style={portalTitle}>Patient Portal</h3>
+                  <p style={portalText}>
+                    Add medical records, grant doctor access, and manage your
+                    health data securely.
+                  </p>
+                </div>
               </div>
+
+              <button style={registerBtn} onClick={() => navigate("/register")}>
+                Create New Account
+              </button>
             </div>
           </div>
         </div>
@@ -64,133 +90,147 @@ const page = (img) => ({
 
 const overlay = {
   minHeight: "100vh",
-  background: "linear-gradient(rgba(8,15,30,0.70), rgba(8,15,30,0.78))",
+  background: "linear-gradient(rgba(8,15,30,0.75), rgba(8,15,30,0.78))",
+  padding: "30px",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  padding: "30px",
 };
 
-const heroCard = {
+const wrapper = {
   width: "100%",
-  maxWidth: "1180px",
-  minHeight: "650px",
+  maxWidth: "1280px",
   display: "grid",
-  gridTemplateColumns: "1.05fr 1fr",
-  background: "rgba(255,255,255,0.10)",
-  backdropFilter: "blur(10px)",
-  WebkitBackdropFilter: "blur(10px)",
-  border: "1px solid rgba(255,255,255,0.16)",
-  borderRadius: "24px",
-  overflow: "hidden",
-  boxShadow: "0 25px 60px rgba(0,0,0,0.35)",
+  gridTemplateColumns: "1.2fr 0.9fr",
+  gap: "28px",
+  alignItems: "stretch",
 };
 
 const leftPanel = {
-  padding: "56px 48px",
   color: "white",
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "center",
-  background: "linear-gradient(135deg, rgba(19,72,145,0.70), rgba(10,22,44,0.55))",
+  background: "rgba(255,255,255,0.08)",
+  border: "1px solid rgba(255,255,255,0.12)",
+  borderRadius: "24px",
+  padding: "36px",
+  backdropFilter: "blur(8px)",
 };
 
 const rightPanel = {
-  padding: "48px 40px",
-  background: "rgba(255,255,255,0.94)",
   display: "flex",
-  flexDirection: "column",
-  justifyContent: "center",
+  alignItems: "center",
+};
+
+const brandBadge = {
+  display: "inline-block",
+  padding: "10px 16px",
+  borderRadius: "999px",
+  background: "rgba(255,255,255,0.12)",
+  marginBottom: "20px",
+  fontWeight: "700",
 };
 
 const title = {
-  fontSize: "42px",
+  fontSize: "46px",
   lineHeight: "1.15",
-  marginBottom: "18px",
+  margin: "0 0 16px 0",
 };
 
 const subtitle = {
   fontSize: "17px",
-  lineHeight: "1.7",
-  color: "rgba(255,255,255,0.88)",
-  maxWidth: "520px",
+  lineHeight: "1.8",
+  color: "rgba(255,255,255,0.9)",
+  marginBottom: "28px",
 };
 
-const badgeRow = {
-  display: "flex",
-  gap: "12px",
-  flexWrap: "wrap",
-  marginTop: "26px",
+const featureGrid = {
+  display: "grid",
+  gridTemplateColumns: "1fr 1fr",
+  gap: "16px",
 };
 
-const badge = {
-  padding: "10px 16px",
-  borderRadius: "999px",
-  background: "rgba(255,255,255,0.14)",
-  border: "1px solid rgba(255,255,255,0.18)",
+const featureCard = {
+  background: "rgba(255,255,255,0.08)",
+  border: "1px solid rgba(255,255,255,0.12)",
+  borderRadius: "18px",
+  padding: "18px",
+};
+
+const featureTitle = {
+  margin: "0 0 8px 0",
+};
+
+const featureText = {
+  margin: 0,
+  color: "rgba(255,255,255,0.86)",
+  lineHeight: "1.6",
   fontSize: "14px",
 };
 
-const smallText = {
+const glassCard = {
+  width: "100%",
+  background: "rgba(255,255,255,0.94)",
+  borderRadius: "24px",
+  padding: "32px",
+  boxShadow: "0 20px 45px rgba(0,0,0,0.25)",
+};
+
+const rightTitle = {
+  margin: "0 0 10px 0",
+  color: "#0f172a",
+};
+
+const rightSubtitle = {
+  margin: "0 0 22px 0",
   color: "#64748b",
-  marginTop: "-4px",
-  marginBottom: "24px",
 };
 
-const cardWrap = {
-  display: "grid",
-  gridTemplateColumns: "1fr 1fr",
-  gap: "18px",
-};
-
-const roleCard = {
+const portalCard = {
+  display: "flex",
+  gap: "16px",
+  alignItems: "flex-start",
   background: "#ffffff",
   border: "1px solid #e2e8f0",
-  borderRadius: "20px",
-  padding: "24px",
-  boxShadow: "0 10px 28px rgba(15,23,42,0.08)",
+  borderRadius: "18px",
+  padding: "20px",
+  marginBottom: "16px",
   cursor: "pointer",
+  boxShadow: "0 8px 20px rgba(15,23,42,0.06)",
 };
 
 const iconCircle = {
-  width: "58px",
-  height: "58px",
+  width: "56px",
+  height: "56px",
   borderRadius: "50%",
   background: "#e0ecff",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  fontSize: "28px",
-  marginBottom: "16px",
+  fontSize: "26px",
+  flexShrink: 0,
 };
 
-const cardTitle = {
-  margin: "0 0 8px 0",
+const portalTitle = {
+  margin: "0 0 6px 0",
   color: "#0f172a",
 };
 
-const cardText = {
+const portalText = {
+  margin: 0,
   color: "#64748b",
-  minHeight: "72px",
   lineHeight: "1.6",
   fontSize: "14px",
 };
 
-const primaryBtn = {
+const registerBtn = {
   width: "100%",
-  padding: "12px",
+  padding: "14px",
+  border: "none",
+  borderRadius: "14px",
   background: "#0f62fe",
   color: "white",
-  border: "none",
-  borderRadius: "12px",
-  fontWeight: "600",
+  fontWeight: "700",
   cursor: "pointer",
   marginTop: "10px",
-};
-
-const secondaryBtn = {
-  ...primaryBtn,
-  background: "#0f766e",
 };
 
 export default SelectRole;
