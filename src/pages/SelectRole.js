@@ -5,26 +5,60 @@ function SelectRole() {
   const navigate = useNavigate();
 
   return (
-    <div style={{ textAlign: "center", marginTop: "100px" }}>
-      <h1>🏥 MedChain</h1>
-      <h3>Select Login Type</h3>
+    <div style={container}>
+      <div style={box}>
+        <h1 style={{ marginBottom: "20px" }}>🏥 MedChain Portal</h1>
+        <p>Select Login Type</p>
 
-      <button onClick={() => navigate("/login/Doctor")} style={btn}>
-        Doctor Login
-      </button>
+        <div style={cards}>
 
-      <button onClick={() => navigate("/login/Patient")} style={btn}>
-        Patient Login
-      </button>
+          <div style={card} onClick={() => navigate("/login/Patient")}>
+            <h3>👤 Patient</h3>
+            <p>Access your medical records</p>
+          </div>
+
+          <div style={card} onClick={() => navigate("/login/Doctor")}>
+            <h3>👨‍⚕️ Doctor</h3>
+            <p>Manage patient data</p>
+          </div>
+
+        </div>
+      </div>
     </div>
   );
 }
 
-const btn = {
-  margin: "20px",
-  padding: "15px 30px",
-  fontSize: "18px",
-  cursor: "pointer"
+const container = {
+  height: "100vh",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  background: "linear-gradient(135deg, #74ebd5, #ACB6E5)"
+};
+
+const box = {
+  background: "white",
+  padding: "40px",
+  borderRadius: "15px",
+  textAlign: "center",
+  width: "400px",
+  boxShadow: "0 10px 30px rgba(0,0,0,0.2)"
+};
+
+const cards = {
+  display: "flex",
+  gap: "20px",
+  marginTop: "20px"
+};
+
+const card = {
+  flex: 1,
+  background: "#3498db",
+  color: "white",
+  padding: "20px",
+  borderRadius: "10px",
+  cursor: "pointer",
+  transition: "0.3s"
 };
 
 export default SelectRole;
