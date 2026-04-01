@@ -20,6 +20,7 @@ function PatientDashboard() {
   }, []);
 
   const addRecord = async () => {
+    if (!data.trim()) return alert("Enter data");
     await API.post("/add_record", { data });
     setData("");
     loadData();
@@ -30,42 +31,39 @@ function PatientDashboard() {
     setVerifyResult(res.data);
   };
 
+  const logout = () => {
+    localStorage.clear();
+    window.location.href = "/";
+  };
+
   return (
     <div style={page(bg)}>
-      <div style={layout}>
+      <div style={overlay}>
 
         {/* SIDEBAR */}
         <div style={sidebar}>
           <h2>🏥 MedChain</h2>
 
-          <button onClick={() => navigate("/patient")}>🏠 Dashboard</button>
-          <button onClick={() => navigate("/chat")}>💬 Chat</button>
-          <button onClick={() => navigate("/profile")}>👤 Profile</button>
-          <button onClick={() => navigate("/settings")}>⚙️ Settings</button>
+          <button style={menuBtn} onClick={() => navigate("/chat")}>💬 Chat</button>
+          <button style={menuBtn} onClick={() => navigate("/profile")}>👤 Profile</button>
+          <button style={menuBtn} onClick={() => navigate("/settings")}>⚙️ Settings</button>
 
-          <button onClick={() => {
-            localStorage.clear();
-            window.location.href = "/";
-          }}>🚪 Logout</button>
+          <button style={logoutBtn} onClick={logout}>🚪 Logout</button>
         </div>
 
         {/* MAIN */}
         <div style={main}>
+          <h2 style={{ marginBottom: "20px" }}>Patient Dashboard</h2>
 
-          {/* NAVBAR */}
-          <div style={navbar}>
-            <h2>Patient Dashboard</h2>
-          </div>
-
-          {/* CARDS */}
+          {/* TOP CARDS */}
           <div style={cards}>
             <div style={card}>
-              <h3>Total Records</h3>
+              <h4>Total Records</h4>
               <p>{records.length}</p>
             </div>
 
             <div style={card}>
-              <h3>Status</h3>
+              <h4>Blockchain Status</h4>
               <p>
                 {verifyResult
                   ? verifyResult.chain_valid ? "Valid ✅" : "Broken ❌"
@@ -76,24 +74,28 @@ function PatientDashboard() {
 
           {/* ADD RECORD */}
           <div style={box}>
-            <h3>Add Record</h3>
+            <h3>Add Medical Record</h3>
             <textarea
+              style={textarea}
               value={data}
               onChange={(e) => setData(e.target.value)}
+              placeholder="Enter medical data..."
             />
-            <button onClick={addRecord}>Add</button>
-            <button onClick={verifyBlockchain}>Verify</button>
+            <div style={{ marginTop: "10px" }}>
+              <button style={primaryBtn} onClick={addRecord}>Add Record</button>
+              <button style={secondaryBtn} onClick={verifyBlockchain}>Verify</button>
+            </div>
           </div>
 
-          {/* RECORDS */}
+          {/* RECORD LIST */}
           <div style={box}>
-            <h3>Records</h3>
+            <h3>Your Records</h3>
 
             {records.map((r) => (
               <div key={r.id} style={record}>
-                <p>{r.data}</p>
-                <p>{r.record_hash}</p>
-                <p>{r.verified ? "✅" : "❌"}</p>
+                <p><b>Data:</b> {r.data}</p>
+                <p><b>Hash:</b> {r.record_hash}</p>
+                <p><b>Status:</b> {r.verified ? "Verified ✅" : "Tampered ❌"}</p>
               </div>
             ))}
           </div>
@@ -104,7 +106,7 @@ function PatientDashboard() {
   );
 }
 
-/* STYLES */
+/* CLEAN STYLES */
 
 const page = (img) => ({
   minHeight: "100vh",
@@ -112,13 +114,15 @@ const page = (img) => ({
   backgroundSize: "cover",
 });
 
-const layout = {
+const overlay = {
   display: "flex",
+  minHeight: "100vh",
+  background: "rgba(0,0,0,0.6)",
 };
 
 const sidebar = {
-  width: "220px",
-  background: "#1e293b",
+  width: "230px",
+  background: "rgba(20,33,52,0.95)",
   color: "white",
   padding: "20px",
   display: "flex",
@@ -126,14 +130,28 @@ const sidebar = {
   gap: "10px",
 };
 
-const main = {
-  flex: 1,
-  padding: "20px",
-  background: "rgba(255,255,255,0.9)",
+const menuBtn = {
+  padding: "12px",
+  border: "none",
+  borderRadius: "8px",
+  background: "#334155",
+  color: "white",
+  cursor: "pointer",
 };
 
-const navbar = {
-  marginBottom: "20px",
+const logoutBtn = {
+  marginTop: "20px",
+  padding: "12px",
+  background: "#dc2626",
+  color: "white",
+  border: "none",
+  borderRadius: "8px",
+};
+
+const main = {
+  flex: 1,
+  padding: "30px",
+  color: "white",
 };
 
 const cards = {
@@ -142,23 +160,48 @@ const cards = {
 };
 
 const card = {
-  background: "#0f62fe",
-  color: "white",
-  padding: "20px",
-  borderRadius: "10px",
   flex: 1,
+  background: "rgba(255,255,255,0.9)",
+  color: "black",
+  padding: "15px",
+  borderRadius: "10px",
 };
 
 const box = {
-  background: "white",
-  padding: "20px",
   marginTop: "20px",
+  background: "rgba(255,255,255,0.95)",
+  padding: "20px",
   borderRadius: "10px",
+  color: "black",
+};
+
+const textarea = {
+  width: "100%",
+  height: "80px",
+  borderRadius: "8px",
+  padding: "10px",
 };
 
 const record = {
   borderBottom: "1px solid #ccc",
   padding: "10px",
+};
+
+const primaryBtn = {
+  padding: "10px 15px",
+  marginRight: "10px",
+  background: "#0f62fe",
+  color: "white",
+  border: "none",
+  borderRadius: "6px",
+};
+
+const secondaryBtn = {
+  padding: "10px 15px",
+  background: "#0f766e",
+  color: "white",
+  border: "none",
+  borderRadius: "6px",
 };
 
 export default PatientDashboard;
