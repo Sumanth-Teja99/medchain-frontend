@@ -13,15 +13,12 @@ import Settings from "./pages/Settings";
 
 function App() {
 
-  // 🔐 Protect routes
   const ProtectedRoute = ({ children, role }) => {
     const userRole = localStorage.getItem("role");
 
-    if (!userRole) {
-      return <Navigate to="/" />;
-    }
+    if (!userRole) return <Navigate to="/" />;
 
-    if (role && userRole !== role) {
+    if (role && userRole.toLowerCase() !== role.toLowerCase()) {
       return <Navigate to="/" />;
     }
 
@@ -32,12 +29,10 @@ function App() {
     <BrowserRouter>
       <Routes>
 
-        {/* 🟢 PUBLIC ROUTES */}
         <Route path="/" element={<SelectRole />} />
         <Route path="/login/:role" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* 🟢 PATIENT ROUTES */}
         <Route
           path="/patient"
           element={
@@ -47,7 +42,6 @@ function App() {
           }
         />
 
-        {/* 🟢 DOCTOR ROUTES */}
         <Route
           path="/doctor"
           element={
@@ -57,7 +51,6 @@ function App() {
           }
         />
 
-        {/* 🟢 COMMON ROUTES (BOTH CAN USE) */}
         <Route
           path="/chat"
           element={

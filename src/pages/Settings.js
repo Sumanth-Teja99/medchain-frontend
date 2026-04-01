@@ -1,7 +1,12 @@
 import React from "react";
 
 function Settings() {
-  return <h2>Settings Page</h2>;
+  return (
+    <div style={{ padding: "20px" }}>
+      <h2>⚙️ Settings</h2>
+      <p>Settings coming soon...</p>
+    </div>
+  );
 }
 
 export default Settings;
