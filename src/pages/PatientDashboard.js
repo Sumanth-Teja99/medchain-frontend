@@ -9,17 +9,14 @@ function PatientDashboard() {
   const [records, setRecords] = useState([]);
   const [doctors, setDoctors] = useState([]);
   const [selectedDoctor, setSelectedDoctor] = useState("");
+  const [verifyResult, setVerifyResult] = useState(null);
 
   const loadData = async () => {
-    try {
-      const rec = await API.get("/get_records");
-      setRecords(rec.data || []);
+    const rec = await API.get("/get_records");
+    setRecords(rec.data || []);
 
-      const doc = await API.get("/doctors");
-      setDoctors(doc.data || []);
-    } catch (err) {
-      console.log(err);
-    }
+    const doc = await API.get("/doctors");
+    setDoctors(doc.data || []);
   };
 
   useEffect(() => {
@@ -29,24 +26,21 @@ function PatientDashboard() {
   const addRecord = async () => {
     if (!data.trim()) return alert("Enter data");
 
-    try {
-      await API.post("/add_record", { data });
-      setData("");
-      loadData();
-    } catch {
-      alert("Failed to add record");
-    }
+    await API.post("/add_record", { data });
+    setData("");
+    loadData();
   };
 
   const grantAccess = async (id) => {
     if (!selectedDoctor) return alert("Select doctor");
 
-    try {
-      await API.post(`/grant_access?record_id=${id}&doctor_id=${selectedDoctor}`);
-      alert("Access granted");
-    } catch {
-      alert("Failed");
-    }
+    await API.post(`/grant_access?record_id=${id}&doctor_id=${selectedDoctor}`);
+    alert("Access granted");
+  };
+
+  const verifyBlockchain = async () => {
+    const res = await API.get("/verify_chain");
+    setVerifyResult(res.data);
   };
 
   const logout = () => {
@@ -83,6 +77,22 @@ function PatientDashboard() {
           <button onClick={addRecord}>Add Record</button>
         </div>
 
+        {/* VERIFY BUTTON */}
+        <button onClick={verifyBlockchain} style={{ marginTop: "15px" }}>
+          Verify Blockchain
+        </button>
+
+        {verifyResult && (
+          <div style={{ marginTop: "10px" }}>
+            <h4>
+              {verifyResult.chain_valid
+                ? "Blockchain Valid ✅"
+                : "Blockchain Broken ❌"}
+            </h4>
+            <p>Total Records: {verifyResult.total_records}</p>
+          </div>
+        )}
+
         {/* SELECT DOCTOR */}
         <div style={card}>
           <select onChange={(e) => setSelectedDoctor(e.target.value)}>
@@ -103,7 +113,6 @@ function PatientDashboard() {
             <div key={record.id} style={recordBox}>
               <p><b>Data:</b> {record.data}</p>
 
-              {/* 🔥 BLOCKCHAIN DATA */}
               <p><b>Previous Hash:</b> {record.previous_hash}</p>
               <p><b>Record Hash:</b> {record.record_hash}</p>
               <p>
