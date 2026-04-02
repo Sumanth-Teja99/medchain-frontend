@@ -44,7 +44,7 @@ function DoctorDashboard() {
         </div>
 
         {/* MAIN */}
-        <div style={main}>
+        <div style={main} className="fade-in">
           <h2 style={{ marginBottom: "20px" }}>Doctor Dashboard</h2>
 
           {/* CARDS */}
